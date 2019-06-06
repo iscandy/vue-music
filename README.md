@@ -47,7 +47,7 @@ routes: [
       color: $color-theme
       border-bottom: 2px solid $color-theme
 ```
-<router-view>
+<h5>router-view</h5>
 ```html
 <div id="app">
     <m-header></m-header>
