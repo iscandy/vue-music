@@ -7,7 +7,7 @@
 </p>
 <h4>tab组件</h4>
 <p>当我们点击推荐歌手，排行和搜索的。页面tab以下的展示各自相应的页面，同时路由页相应的变化。</p>
-<img style="width:200px" src="https://note.youdao.com/yws/public/resource/2d220ebaf39f4d400e45968992d92bb2/xmlnote/054BFED168CD419EA597569EFB58AFBE/447"  alt="推荐页" align=center />
+<img src="https://note.youdao.com/yws/public/resource/2d220ebaf39f4d400e45968992d92bb2/xmlnote/054BFED168CD419EA597569EFB58AFBE/447"  alt="推荐页" align=center  style="max-width: 50% !important;"  />
 <h2> 路由配置</h2>
 <img style="width:100%;" src="https://note.youdao.com/yws/public/resource/2d220ebaf39f4d400e45968992d92bb2/xmlnote/45B5CAF88D424D30B0A41ECEC5064F90/477"  alt="路由配置" align=center />
 
