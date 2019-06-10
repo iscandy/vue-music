@@ -16,3 +16,21 @@ export function getRecommend(){
    return jsonp(url,data,options)
 }
 
+import axios  from 'axios'
+//引入axios
+export function getListData(){
+    const url='/api'
+    let data={
+        g_tk: 5381,
+        loginUin: 0,
+        hostUin: 0,
+        format: 'json',
+        inCharset: 'utf8',
+        outCharset: 'GB2312',
+        notice: 0,
+        platform:'yqq.json',
+        needNewCode: 0,
+        cmd: 'shoubo',
+        lan: 'all',
+    }
+}
