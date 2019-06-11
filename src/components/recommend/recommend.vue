@@ -1,57 +1,65 @@
 <template>
-    <div>
-        <slider v-if="recommend.length" >
-            <div v-for="(item,index) in recommend" :key="index" class="slide-item">
-                <a :href="item.linkUrl" target="_blank">
-                    <img :src="item.picUrl">
-                </a>
-            </div>
-        </slider>
-        <!--轮播部分-->
-        <slider></slider>
-
-        <!-- 列表部分-->
-        <div  class="recommend-list" style="pointer-events: auto;">
-            <h1  class="list-title">热门歌单推荐</h1>
-            <ul>
-                <li class="item">
-                    <div class="icon">
-                        <img width="60" height="60" src="http://p.qpic.cn/music_cover/ibJJngZRP5m8ksRvDkGZxdcTjKvwic4LFLmx6NNVNRnXWDZXqLzFictBw/600?n=1" lazy="loaded">
+    <div  class="recommend">
+        <scroll class="recommend-content" :data="recommendList" ref="scroll">
+            <div>
+                <!--轮播部分-->
+                <slider v-if="recommend.length" >
+                    <div v-for="(item,index) in recommend" :key="index">
+                        <a :href="item.linkUrl" target="_blank">
+                            <img :src="item.picUrl" @load="loadImage">
+                        </a>
                     </div>
-                    <div class="text">
-                        <h2 class="name">谈谈心恋恋爱 *</h2>
-                        <p class="desc">
-                            静心民谣：夏日清凉专享
-                        </p>
-                    </div>
-                </li>
-            </ul>
-        </div>
-
-
+                </slider>
+                <!-- 列表部分-->
+                <div  class="recommend-list" style="pointer-events: auto;">
+                    <h1  class="list-title">热门歌单推荐</h1>
+                    <ul>
+                        <li class="item" v-for='(item,index) in recommendList' :key="index">
+                            <div class="icon">
+                                <img width="60" height="60" v-lazy="item.imgurl">
+                            </div>
+                            <div class="text">
+                                <h2 class="name">{{item.creator.name}}</h2>
+                                <p class="desc">
+                                    {{item.dissname}}
+                                </p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <!--loading -->
+                <loading v-if="!recommendList.length"></loading>
+            </div> 
+        </scroll>
     </div>
 </template>
 
 <script>
 //引入异步请求函数
-import {getRecommend,getListData} from 'api/recommend.js'
+import {getRecommend,getRecommendList} from 'api/recommend.js'
 //引入常用的配置参数的ERR_OK
 import {ERR_OK} from 'api/config.js'
 //引入slider组件
 import slider from 'components/base/slider/slider'
-
+//引入scrollvew组件
+import  scroll  from 'components/base/scroll/scroll'
+//引入loading组件
+import loading from 'components/base/loading/loading'
 export default {
     created(){
         //用_开头的方法名
-        this._getRecommend();
-        this._getListData();
+         this._getRecommend();
+         this._getRecommendList()
     },
     components:{
-        slider
+        slider,
+        scroll,
+        loading
     },
     data:function () {
         return{
-             recommend:[]
+             recommend:[],
+             recommendList:[]
         }
     },
     methods: {
@@ -63,10 +71,21 @@ export default {
                 }
             })
        },
-       _getListData(){
-           getListData().then(res=>{
-               console.log(res);
+       _getRecommendList(){
+           let that=this;
+           getRecommendList().then(res=>{
+               if(res.code==ERR_OK){
+                   that.recommendList=res.data.list
+               }
            })
+       },
+       loadImage(){
+           //因为有多张图片，但是我们只需要当只有一张图片撑开的时候才做一下操作
+          if(!this.checkloaded){ //添加一个标志位，如果load一次了，就不再执行onload事件了
+                this.checkloaded = true
+                this.$refs.scroll.refresh()
+            }
+          
        }
     },
 }
@@ -74,7 +93,18 @@ export default {
 
 <style lang="stylus" scoped>
 @import "~common/stylus/variable"
- .recommend-list
+.recommend
+    position: fixed
+    width: 100%
+    top: 88px
+    bottom: 0
+    .recommend-content
+      height: 100%
+      .slider-wrapper
+        position: relative
+        width: 100%
+        overflow: hidden
+      .recommend-list
         .list-title
           height: 65px
           line-height: 65px
@@ -103,4 +133,8 @@ export default {
               color: $color-text
             .desc
               color: $color-text-d
+      .loading-container
+        position: absolute
+        width: 100%
+        top: 50%
 </style>

@@ -18,6 +18,8 @@
     text-align: center
     color: $color-theme
     font-size: 0
+    background: #222;
+    z-index: 10;
     .icon
       display: inline-block
       vertical-align: top

@@ -10,23 +10,27 @@ module.exports = {
     // Paths
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
+
     //配置返向代理
-  // proxyTable: {},
-//     参考：https://vuejs-templates.github.io/webpack/proxy.html
-// 　　举例：localhost:8080/api/xxx 代理到 http://192.168.10.183:8103/api/xxx,如果用pathRewrite重写则代理到http://192.168.10.183:8103/xxx
-// 　　将'/api'转为'/'
-　　proxyTable: {
-      '/api': {// '/api':匹配项
-        target: 'https://y.qq.com',// 接口的域名
-　　　　 secure: false,// 如果是https接口，需要配置这个参数
-        changeOrigin: true,// 如果接口跨域，需要进行这个参数配置
-　　　　　pathRewrite: {// 如果接口本身没有/api需要通过pathRewrite来重写了地址
-　　　　　  '^api': ''
+  　proxyTable: {
+        '/api/getRecomonList': {// '/api':匹配项
+          target: 'https://c.y.qq.com/splcloud/fcgi-bin/fcg_get_diss_by_tag.fcg',// 接口域名
+  　　　　 secure: false,// 如果是https接口，需要配置这个参数
+          changeOrigin: true,// 是否跨域
+          //请求前处理
+          bypass: function(req, res, proxyOptions) {
+            //对请求头处理
+            req.headers.referer='https://y.qq.com'
+            req.headers.host='c.y.qq.com'
+          },
+  　　　　 pathRewrite: {// 重写地址
+  　　　　　  '^/api/getRecomonList': ''
+          }
         }
-      }
     },
+
     // Various Dev Server settings
-    host: '192.168.2.209', // can be overwritten by process.env.HOST
+    host: '192.168.2.228', // can be overwritten by process.env.HOST
     port: 8080, // can be overwritten by process.env.PORT, if port is in use, a free one will be determined
     autoOpenBrowser: false,
     errorOverlay: true,

@@ -6,6 +6,11 @@ import router from './router'
 import 'babel-polyfill'// 引入babel-polyfill
 import fastclick from 'fastclick'// 引入fastclick
 import 'common/stylus/index.styl'
+import  vulazyload from 'vue-lazyload'
+
+Vue.use(vulazyload,{
+  loading: require('./common/image/default.png') //loading时默认显示的图片
+})
 
 fastclick.attach(document.body)// 使用fastclick
 Vue.config.productionTip = false
