@@ -1,16 +1,103 @@
 <template>
-    <div class="listview">
-        <ul>
-            <li class="list-group" style="pointer-events: auto;">
-            <h2 class="list-group-title">热门</h2>
-            <ul>
-                <li class="list-group-item"><img class="avatar" src="https://y.gtimg.cn/music/photo_new/T001R300x300M000002J4UUk29y8BY.jpg?max_age=2592000" lazy="loaded"><span data-v-49ade291="" data-v-50c7f04d="" class="name">薛之谦</span></li>
-            </ul>
-            </li>
-        </ul>
-    </div>
+    <scroll :data="data" class="listview" ref="listview" :probeType="probeType">
+          <ul>
+              <li  class="list-group" ref="listGroup"  v-for="(item,index) in data" :key="index">
+                <h2 class="list-group-title">{{item.title}}</h2>
+                <ul>
+                    <li class="list-group-item" v-for="singer in item.items" :key="singer.id">
+                      <img class="avatar" v-lazy="singer.avatar">
+                      <span class="name">{{singer.name}}</span>
+                    </li>
+                </ul>
+              </li>
+          </ul>
+          <!-- 右侧点点部分-->
+          <div class="list-shortcut">
+              <ul  @touchstart="onShortcutTouchStart" @touchmove.stop.prevent="onShortcutTouchMove">
+                <li 
+                    v-for="(item,index) in shortcut" 
+                    :key="index"
+                    :data-index="index" class="item"
+                    :class="{current:index==currentIndex}"
+                >
+                  {{item}}
+                </li>
+              </ul>
+          </div>
+    </scroll>
 </template>
 
+
+<script>
+import scroll from '../scroll/scroll'
+import {getData}  from 'common/js/dom'
+const CUTHEIGHT=18;//每个字母的高度
+export default {
+  props:{
+    data:{
+      type:Array,
+      default:[]
+    }
+  },
+  data(){
+    return{
+        listHeigth:[],
+        currentIndex:0,
+        probeType:3,
+        touch:{}
+    }
+  },
+  computed: {
+    shortcut(){////得到title的集合数组，‘热门’取1个字
+        let arr=[];
+        this.data.forEach(item => {
+          arr.push(item.title.substr(0,1));
+        });
+        return arr
+    }
+  },
+  components:{
+    scroll
+  },
+  methods: {
+     onShortcutTouchStart(e) {
+          //记录开始的位置
+          let anchorIndex=getData(e.target,'index')
+          this.touch.y1=e.touches[0].pageY;//开始的y坐标
+
+          this.touch.anchorIndex=anchorIndex;
+          //去到listHeigth数组的某一项
+          this._scollTo(anchorIndex);
+      },
+      //计算手机放下的位置，和move之后的位置，比较，让左边的滚动，用this.touch来记录位置信息
+      onShortcutTouchMove(e){
+           this.touch.y2=e.touches[0].pageY;//开始的y坐标
+           let delta=(this.touch.y2-this.touch.y1)/CUTHEIGHT | 0//向下取整。获取到最接近的值
+           let anchorIndex=parseInt(this.touch.anchorIndex)+delta
+           this._scollTo(anchorIndex);
+      },
+      //滑动到哪里
+      _scollTo(index){
+        this.$refs.listview.scrollTo(0,-this.listHeigth[index],0);
+        this.currentIndex=index;
+      }
+  },
+  watch: {
+    data(){
+      setTimeout(()=>{
+          this.listHeigth=[];
+          let height=0;
+          this.listHeigth.push(0);
+          let list=[...this.$refs.listGroup];
+          for(let i=0;i<list.length;i++){
+              height+=list[i].clientHeight;
+              this.listHeigth.push(height);
+          }
+      },20)
+    }
+  },
+}
+</script>
 
 <style scoped lang="stylus" rel="stylesheet/stylus">
   @import "~common/stylus/variable"

@@ -17,3 +17,14 @@ export function addClass(el,className){
    el.className=newClass.join(' ');
 }
 
+
+//给元素添加属性或者得到属性的值
+export function getData(el,attrname,value){
+    let prefix='data-'
+    let  name=prefix+attrname
+    if(value){
+        el.setAttribute(name,value);
+    }else{
+        return el.getAttribute(name);
+    }
+}

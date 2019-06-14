@@ -6,7 +6,7 @@
                 <slider v-if="recommend.length" >
                     <div v-for="(item,index) in recommend" :key="index">
                         <a :href="item.linkUrl" target="_blank">
-                            <img :src="item.picUrl" @load="loadImage">
+                            <img :src="item.picUrl" @load="loadImage" class="needsclick">
                         </a>
                     </div>
                 </slider>
@@ -49,7 +49,7 @@ export default {
     created(){
         //用_开头的方法名
          this._getRecommend();
-         this._getRecommendList()
+         this._getRecommendList();
     },
     components:{
         slider,
