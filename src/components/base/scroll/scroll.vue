@@ -21,6 +21,10 @@ export default {
         data: {
             type: Array,
             default: null
+        },
+        listenScroll:{
+            type:Boolean,
+            default:false
         }
     },
     data(){
@@ -42,6 +46,16 @@ export default {
                   probeType : this.probeType,
                   click: this.click
             })
+
+            //判断是否需派发一个scroll事件
+             if(this.listenScroll){//派发一个scroll事件
+                let me=this;
+                this.scroll.on('scroll',(pos)=>{
+;
+                    //给父组件分发一个getScrollY事件。并且传递pos.y参数
+                    me.$emit('scroll',pos)
+                })
+             }
         },
         refresh() {
            // 强制 scroll 重新计算，当 better-scroll 中的元素发生变化的时候调用此方法

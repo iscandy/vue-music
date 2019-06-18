@@ -7,6 +7,7 @@ import singer from 'components/singer/singer.vue'
 import rank from 'components/rank/rank.vue'
 import search from 'components/search/search.vue'
 
+
 Vue.use(Router)
 
 export default new Router({

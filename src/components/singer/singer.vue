@@ -1,6 +1,9 @@
 <template>
     <div class="listview-wrap">
-        <listview :data="singerList"></listview>
+        <listview :data="singerList" @select="selectSinger"></listview>
+        <transition name="slide">
+        <router-view></router-view>
+        </transition>
     </div>
 </template>
 
@@ -25,7 +28,9 @@ export default {
         }
     },
     created(){
-        this._getsingerList()  
+        setTimeout(()=>{
+            this._getsingerList()  
+        },3000)
     },
     methods:{
          _getsingerList(){
@@ -91,6 +96,12 @@ export default {
                 return a.title.charCodeAt(0) - b.title.charCodeAt(0)
             })
             return hot.concat(ret);
+        },
+        //监听到点击的事件，改变路由
+        selectSinger(singer){
+             this.$router.push({
+                 path:`/singer/${singer.id}`
+             })
         }
     }
 }
@@ -105,5 +116,12 @@ export default {
     right: 0px;
     bottom: 0px;
 }
+.slide-enter-active,.slide-leave-active{
+    transition: all .3s
+}
+.slide-enter,.slide-leave-to{
+    transform: translate3d(-100%,0,0)
+}
+
 </style>
 

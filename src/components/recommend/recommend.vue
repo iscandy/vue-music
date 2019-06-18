@@ -49,6 +49,7 @@ export default {
     created(){
         //用_开头的方法名
          this._getRecommend();
+
          this._getRecommendList();
     },
     components:{
