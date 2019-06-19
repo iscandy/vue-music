@@ -26,6 +26,19 @@ module.exports = {
   　　　　 pathRewrite: {// 重写地址
   　　　　　  '^/api/getRecomonList': ''
           }
+        },
+        //获取到播放源地址
+        '/api/getMusicVkey':{
+           target:'https://c.y.qq.com/base/fcgi-bin/fcg_music_express_mobile3.fcg',
+           secure:false,
+           changeOrigin:true,
+           bypass:function(req,res,proxyOptions){
+             req.headers.referer='https://y.qq.com/'
+             req.headers.host='c.y.qq.com'
+           },
+           pathRewrite:{
+            '^/api/getMusicVkey': ''
+           }
         }
     },
 

@@ -2,7 +2,7 @@
     <div class="listview-wrap">
         <listview :data="singerList" @select="selectSinger"></listview>
         <transition name="slide">
-        <router-view></router-view>
+            <router-view ></router-view>
         </transition>
     </div>
 </template>
@@ -11,8 +11,9 @@
 import listview from 'components/base/listview/listview'
 import {getsingerList} from 'api/singer.js'
 import {ERR_OK} from 'api/config.js'
+import {mapMutations} from 'vuex'
 
-//引入歌手类文件
+//引入歌手类
 import Singer from 'common/js/singer'
 //常量配置
 const HOT_NAME = '热门'
@@ -20,17 +21,16 @@ const HOT_SINGER_LEN = 10
 
 export default {
     components:{
-        listview
+        listview,
     },
     data() {
         return {
-            singerList:[]
+            singerList:[],
         }
     },
     created(){
-        setTimeout(()=>{
-            this._getsingerList()  
-        },3000)
+        this._getsingerList()  
+       // this._getSingerDetail()
     },
     methods:{
          _getsingerList(){
@@ -102,7 +102,11 @@ export default {
              this.$router.push({
                  path:`/singer/${singer.id}`
              })
-        }
+             this.set_singer(singer);
+        },
+        ...mapMutations({
+            set_singer:'SET_SINGER'
+        })
     }
 }
 </script>
@@ -115,12 +119,15 @@ export default {
     left: 0px;
     right: 0px;
     bottom: 0px;
+    z-index: 10;
 }
+
+
 .slide-enter-active,.slide-leave-active{
     transition: all .3s
 }
 .slide-enter,.slide-leave-to{
-    transform: translate3d(-100%,0,0)
+    transform: translate3d(-100%,0,0);
 }
 
 </style>
