@@ -1,11 +1,22 @@
 <template>
    <div class="music-list">
-        <div class="back">
+        <div class="back" @click="back">
                 <i class="icon-back"></i>
         </div>
         <h1 class="title" v-html="title">{{title}}</h1>
+
         <div class="bg-image" :style="bgStyle"  ref="bgImage">
-                <div class="filter"></div>
+            <!-- iphone手机下高斯模糊效果 -->
+            <div class="filter" ref="filter"></div>
+
+                
+                <!-- 播放按钮 -->
+                <div class="play-wrapper" v-show="songs.length" ref="playBtn">
+                    <div class="play">
+                        <i class="icon-play"></i>
+                        <span class="text">随机播放全部</span>
+                    </div>
+                </div>
         </div>
 
         <!-- 加上黑色的层 -->
@@ -15,7 +26,15 @@
             <div class="song-list-wrapper">
                     <song-list :songs="songs"></song-list>
             </div>
+            
+            <!-- loading部分 -->
+            <div class="loading-container" v-show="!songs.length">
+                <loading></loading>
+            </div>
         </scroll>
+
+        
+
     </div>
     
 </template>
@@ -23,7 +42,9 @@
 <script>
 import SongList  from 'components/base/song-list/song-list'
 import scroll from 'components/base/scroll/scroll'
-const RESERVED_HEIGHT=40
+import {prefixStyle}  from 'common/js/dom'
+import loading from 'components/base/loading/loading'
+const RESERVED_HEIGHT=40 //滚动偏移距离
 export default {
     props:{
         bgImage:{
@@ -41,11 +62,13 @@ export default {
     },
     components:{
         SongList,
-        scroll
+        scroll,
+        loading
     },
     data() {
         return {
             scrollY:-1
+            
         }
     },
     computed: {
@@ -68,28 +91,52 @@ export default {
     methods: {
         scroll(pos){
             this.scrollY=pos.y//获取都爱滚动的值s
+        },
+        back(){
+            this.$router.back()
         }
     },
     watch: {
         //监听scrollY的变化
         scrollY(newY){
-            //对顶部的样式进行处理
-            let zIndex = 0
-            if(newY<this.minTranslateY){
-                 zIndex = 10
-                this.$refs.bgImage.style.height=`${RESERVED_HEIGHT}px`
-                this.$refs.bgImage.style['paddingTop']= '0%'
-            }else{
-                 this.$refs.bgImage.style.height= '0'
-                 this.$refs.bgImage.style['paddingTop']= '70%'
+            const transform = prefixStyle('transform')
+            const backdrop = prefixStyle('backdrop-filter')
+            //让文字底部黑色的层跟着滚动
+            let translateY=Math.max(newY,this.minTranslateY)//获取到最大滚动量
+            this.$refs.layer.style[transform]=`translate3d(0,${translateY}px,0)`
+            //对顶部样式进行处理
+             let zIndex=0;//对图片的zindex做处理
+             if(newY<this.minTranslateY){
+                 zIndex=10;//让z-index变大
+                 this.$refs.bgImage.style['paddingTop']='0%'
+                 this.$refs.bgImage.style['height']=`${RESERVED_HEIGHT}px`
+                 this.$refs.playBtn.style['display']='none'
+             }else{
+                 this.$refs.bgImage.style['paddingTop']='70%'
+                 this.$refs.bgImage.style['height']=`0`
+                 this.$refs.playBtn.style['display']='block'
+             }
+             this.$refs.bgImage.style['z-index']=zIndex;
+
+            // //当往下拖的时候，让图片跟着等比放大
+            let scale=1;
+            let percent=Math.abs(newY/this.$refs.bgImage.clientHeight)//计算比例
+            if(newY>0){
+                scale=1+percent
+                zIndex = 10
             }
-            this.$refs.bgImage.style.zIndex = zIndex
-            
-            //让黑色的层跟着滚动
-            let translateY = Math.max(this.minTranslateY, newY) //最大滚动量
-            this.$refs.layer.style['transform'] = `translate3d(0, ${translateY}px, 0)`
-            this.$refs.layer.style['webkitTransform'] = `translate3d(0, ${translateY}px, 0)`
-            
+
+            this.$refs.bgImage.style[transform]=`scale(${scale})`
+            this.$refs.bgImage.style['z-index']=zIndex
+
+            //当往上推的时候，希望图片出现高斯模糊效果，给ref="filter"加上高斯模糊效果
+            //backdrop-filter CSS 属性可以让你为一个元素后面区域添加图形效果（如模糊或颜色偏移）。 因为它适用于元素背后的所有元素，为了看到效果，必须使元素或其背景至少部分透明。
+            let blur = 0
+           if(newY<0){
+                 blur = Math.min(20 * percent, 20) 
+            }
+            this.$refs.filter.style[backdrop]=`blur(${blur}px)`
+
         }
     },      
 

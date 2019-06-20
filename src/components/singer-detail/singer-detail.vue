@@ -26,7 +26,9 @@ export default {
         }
     },
     created() {
-        this._getSingerDetail();
+        setTimeout(()=>{
+               this._getSingerDetail();
+        },500)
     },
     components:{
         musicList  
