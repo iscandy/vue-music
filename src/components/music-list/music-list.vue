@@ -23,8 +23,9 @@
         <div class="bg-layer" ref="layer"></div>
 
         <scroll :data="songs" class="list" ref="list" :probeType='probeType' :listenScroll='listenScroll' @scroll="scroll">
+           
             <div class="song-list-wrapper">
-                    <song-list :songs="songs"></song-list>
+                    <song-list :songs="songs" @select='selectItem'></song-list>
             </div>
             
             <!-- loading部分 -->
@@ -45,6 +46,7 @@ import scroll from 'components/base/scroll/scroll'
 import {prefixStyle}  from 'common/js/dom'
 import loading from 'components/base/loading/loading'
 const RESERVED_HEIGHT=40 //滚动偏移距离
+import {mapActions}  from 'vuex'
 export default {
     props:{
         bgImage:{
@@ -94,8 +96,24 @@ export default {
         },
         back(){
             this.$router.back()
-        }
+        },
+        //当收到emit的时候，立即改变vuex中的数据
+        //需要改变当前的playing
+        //需要改变当前的fullScreen
+        //需要改变当前的currentIndex
+        //需要改变当前的playlist
+         //需要改变当前的sequenceList
+         //所以我们需要派发一个action。让action改变多个mutation
+        selectItem(song,index){
+            //获取到当前的列表
+            this.selectPlay({
+                list:this.songs,
+                index:index
+            })
+        },
+          ...mapActions(['selectPlay']),
     },
+  
     watch: {
         //监听scrollY的变化
         scrollY(newY){
