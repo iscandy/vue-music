@@ -13,4 +13,4 @@ export const playlist=state=>state.playlist
 //循环，随机或者顺序列表
 export const sequenceList=state=>state.sequenceList
 //当前播放的哪一首歌
-export const currentSong=state=>state.currentSong
+export const currentSong=state=>state.sequenceList[state.currentIndex]
