@@ -26,7 +26,7 @@
           <!-- 唱片下方带歌词 -->
           <div class="middle-l">
               <div class="cd-wrapper"  ref="cdWrapper">
-                <div class="cd"  style="transform: matrix(0.720933, 0.693005, -0.693005, 0.720933, 0, 0);" :class="cdCls">>
+                <div class="cd"  :class="cdCls">
                   <img class="image" :src="currentSong.image">
                 </div>
               </div>
@@ -41,19 +41,31 @@
 
       <!-- 底部控制部分 -->
       <div class="bottom">
+        <!-- dot部分 -->
+        <div class="dot-wrapper">
+          <span class="dot active"></span><span class="dot"></span>
+        </div>
+
+        <!-- 进度条部分 -->
+        <div  class="progress-wrapper">
+        <span  class="time time-l">{{formate(currentTime)}}</span>
+        <progressBar></progressBar>
+        <span  class="time time-r">{{formate(currentSong.duration)}}</span>
+      </div>
+        <!-- 控制按钮部分 -->
         <div class="operators">
           <div class="icon i-left">
             <i class="icon-sequence"></i>
           </div>
-          <div class="icon i-left">
-            <i class="icon-prev"></i>
+          <div class="icon i-left"  :class="disableCls">
+            <i class="icon-prev" @click="prev"></i>
           </div>
-          <div class="icon i-center">
+          <div class="icon i-center"  :class="disableCls">
             <!-- 根据播放的状态来控制图标 -->
-            <i class="needsclick" :class="playIcon" @click="togglePlaying"></i>
+            <i class="needsclick" :class="playIcon" @click="togglePlaying" ></i>
           </div>
-          <div class="icon i-right">
-            <i class="icon-next"></i>
+          <div class="icon i-right"  :class="disableCls">
+            <i class="icon-next" @click="next"></i>
           </div>
           <div class="icon i-right">
             <i class="icon icon-not-favorite"></i>
@@ -69,7 +81,7 @@
           <!--可以转动的icon -->
           <div class="icon">
             <div class="imgWrapper">
-              <img  width="40" height="40" class="" :src="currentSong.image">
+              <img  width="40" height="40" class="" :src="currentSong.image"  :class="cdCls">
             </div>
           </div>
           <!-- 歌曲信息部分 -->
@@ -80,7 +92,7 @@
           <!-- 播放暂停歌曲 -->
           <div  class="control">
             <div class="progress-circle">
-              <i  class="icon-mini icon-play-mini"></i>
+              <i  class="icon-mini icon-play-mini" @click.stop="togglePlaying"  :class="playIcon"></i>
             </div>
           </div>
           <div  class="control">
@@ -92,7 +104,13 @@
      </transition>
 
     <!-- 加audio播放 -->
-    <audio :src="currentSong.url" ref="audio"></audio>
+    <audio 
+    :src="currentSong.url" 
+    ref="audio" 
+    @canplay="ready"
+    @error="error"
+    @timeupdate="timeupdate"
+    ></audio>
 
   </div>
 </template>
@@ -101,13 +119,26 @@
 import {mapGetters,mapMutations} from 'vuex'
 import animations from 'create-keyframe-animation'
 import {prefixStyle} from '@/common/js/dom'
+//引入进度条组件
+import progressBar  from 'components/base/progress-bar/progress-bar'
+let flag=true
 export default {
+  data() {
+    return {
+      songReady: false,//标识歌曲是否准备好了
+      currentTime:0
+    }
+  },
+  components:{
+    progressBar
+  },
   computed: {
     ...mapGetters([
       'fullScreen',
       'playlist',
       'currentSong',
-      'playing'
+      'playing',
+      'currentIndex'
     ]),
     //播放或者暂停按钮
     playIcon(){
@@ -115,12 +146,16 @@ export default {
     },
     cdCls(){
        return this.playing ? 'play' : 'pause'
+    },
+    disableCls(){
+      return this.songReady ? '' : 'disable'
     }
   },
   methods: {
     ...mapMutations({
         setFullScreen:'SET_FULLSCREEN',
-        setPlaying:'SET_PLAYING'
+        setPlaying:'SET_PLAYING',
+        setCurrentIndex:'SET_CURRENTINDEX'
     }),
    open(){
      this.setFullScreen(true)
@@ -130,12 +165,69 @@ export default {
     },
     //播放和暂停
     togglePlaying(){
+       if(!this.songReady){
+          return
+        }
       //f发起一个playing 的 mutation
       this.setPlaying(!this.playing)
     },
-
-
-    //一进入的时候
+    //上一首歌
+    prev(){
+       if(!this.songReady){
+          return
+        }
+      let index=this.currentIndex;
+      index--;
+      if(index==-1){
+        index=this.playlist.length; 
+      }
+      this.setCurrentIndex(index)
+      if(!this.playing){
+        this.setPlaying(true);
+      }
+      this.songReady=false
+    },
+    //下一首歌
+    next(){
+        if(!this.songReady){
+          return
+        }
+        let index=this.currentIndex;
+        index++;
+        if(index==this.playlist.length){
+          index=0
+        }
+        this.setCurrentIndex(index);
+        if(!this.playing){
+          this.setPlaying(true);
+        }
+        this.songReady=false
+    },
+    ready(){
+        this.songReady=true
+    },
+    error(){
+      this.songReady=true
+    },
+    timeupdate(e){
+      this.currentTime=e.target.currentTime
+    },
+    //将时间戳转换
+    formate(interval){
+      interval = interval | 0 //向下取整
+      const minute = interval / 60 | 0
+      const second = this._pad(interval % 60)
+      return `${minute}:${second}`
+    },
+    _pad(num, n = 2){ //用0补位，补2位字符串长度
+        let len = num.toString().length
+        while(len < n){
+            num = '0' + num
+            len++
+        }
+        return num
+    },
+    //动画一进入的时候
     enter(el,done){
       let {x,y,scale}=this._getPosAndScale();
       console.log(x,y,scale);
