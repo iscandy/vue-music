@@ -49,7 +49,7 @@
         <!-- 进度条部分 -->
         <div  class="progress-wrapper">
         <span  class="time time-l">{{formate(currentTime)}}</span>
-        <progressBar></progressBar>
+        <progressBar :percent="percent" @percentChange='percentChange'></progressBar>
         <span  class="time time-r">{{formate(currentSong.duration)}}</span>
       </div>
         <!-- 控制按钮部分 -->
@@ -149,6 +149,9 @@ export default {
     },
     disableCls(){
       return this.songReady ? '' : 'disable'
+    },
+    percent(){
+      return this.currentTime /  this.currentSong.duration
     }
   },
   methods: {
@@ -302,6 +305,14 @@ export default {
     }
 
   },
+  //当改变的时候，改变当前的播放的时间
+   percentChange(percent){
+         this.$refs.audio.currentTime = this.currentSong.duration * percent
+         
+          if(!this.playing){
+              this.togglePlaying()
+          }
+    }
   
   },
   watch: {
