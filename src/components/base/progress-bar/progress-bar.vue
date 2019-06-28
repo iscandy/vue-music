@@ -5,7 +5,7 @@
                 @touchmove.prevent="progressTouchMove"
                 @touchend="progressTouchEnd"
           >
-            <div   class="progress-bar" ref="progressBar"> 
+            <div class="progress-bar" ref="progressBar" @click="progressClick"> 
                 <!-- bar-inner 滚动条的黑色的背景部分 -->
               <div  class="bar-inner">
                   <!-- 黄色的滚动条-->
@@ -40,45 +40,61 @@ export default {
     },
     methods: {
       progressTouchStart(e){
-        this.touch.initiated = true //标志位 表示初始化
-        this.touch.x1 = e.touches[0].pageX //当前拖动点X轴位置
-        this.touch.progressWidth = this.$refs.progress.clientWidth //当前进度条的宽度
+        this.touch.initiated=true;//表示已经开始初始化
+        this.touch.x1=e.touches[0].pageX//获取到手指的距离屏幕左边的距离，当前拖动点X轴位置
+        this.touch.progressWidth=this.$refs.progress.clientWidth //获取到当前进度条的宽度
     },
       progressTouchMove(e){
-        if(this.touch.initiated){
-            //滚动条的最大距离
-            const barWidth =this.$refs.progressBar.clientWidth-progressBtnWidth;
-            //当前拖动到的X轴位置
-            this.touch.x2 = e.touches[0].pageX
-            //移动的距离为x2-x1
-            let moveX=this.touch.x2- this.touch.x1
-            //移动的宽度为进度条的宽度+当前的移动的距离
-            let moveWidth=this.touch.progressWidth+moveX;
-            //Math.min 去向右边的时取小值，Math.max向左边时，取最大值（移动边界处理，当移动到最右端的时候，当前的宽度等于进度条的最大宽度）
-            //当移动到最左端的时候，最大值为0
-            let offsetWidth=Math.max(0,Math.min(moveWidth,barWidth))
-            //移动
-            this._offset(offsetWidth)
-        } 
+        if(this.touch.initiated){//如果为true的话
+            //计算移动的距离
+            let moveX=e.touches[0].pageX-this.touch.x1;
+            //计算进度条的宽度
+           let progressWidth=this.touch.progressWidth+moveX;
+            //做边界处理，进度条的宽度，最小不能笑于0，最大不能大于progress-bar的宽度
+            //首先先获取到progress-bar的宽度
+            let barWidth=this.$refs.progressBar.clientWidth-progressBtnWidth;
+            //边界处理。
+            let offsetWidth=Math.min(Math.max(0,progressWidth),barWidth)
+            //把offsetWidth传入_offset方法里面做效果处理
+            this._offset(offsetWidth);
+        }
       },
       progressTouchEnd(e){//当移动完成的时候
-          this.touch.initiated = false
-          this._triggerPercent()
+           this.touch.initiated = false
+           this._triggerPercent()
       },
-      //改变小球和进度条的位置
+      //改变小球的位置和进度条的宽度
       _offset(offsetWidth){
-        this.$refs.progress.style.width=offsetWidth+'px';
-        this.$refs.progressBtn.style[transform]=`translate3d(${offsetWidth}px,0,0)`
+          this.$refs.progress.style.width=offsetWidth+'px';
+          this.$refs.progressBtn.style[transform]=`translate3d(${offsetWidth}px,0, 0)`
       },
-      //改变八分比
+      //改变百分比
       _triggerPercent(){
-          const barWidth = this.$refs.progressBar.clientWidth - progressBtnWidth
-          const percent = this.$refs.progress.clientWidth / barWidth
-          this.$emit('percentChange', percent)
-      }
+         const barWidth=this.$refs.progressBar.clientWidth-progressBtnWidth;//进度条的总长度
+         const percent=this.$refs.progress.clientWidth/barWidth;//百分比=进度条总长度/进度条的长度
+         this.$emit('percentChange', percent)
+      },
+       //点击进度条改变进度
+        //思路。点击位置/进度条的总长度=百分比，emit一个percent
+        progressClick(e){
+          //进度条的总长度
+           const barWidth=this.$refs.progressBar.clientWidth-progressBtnWidth;
+           //progressBar距离屏幕左边的距离
+           let barLeft=this.$refs.progressBar.getBoundingClientRect().left;
+           //点击的位置，距离左边
+           let clickX=e.clientX-barLeft
+           //做边界处理
+           let progressWidth=Math.max(Math.min(clickX,barWidth),0)
+           //改变进度条的位置
+           this._offset(progressWidth);
+           //emit派发percent 
+           this._triggerPercent(progressWidth) 
+        },
     },
+   
     watch: {
         percent(newPercent){
+          //当百分比大于等于0 并且 当前不是滑动的状态的时候
           if(newPercent >= 0 && !this.touch.initiated){
               //当前的进度条的宽度= 进度条背景的宽度-按钮的宽度
               const barWidth =this.$refs.progressBar.clientWidth-progressBtnWidth;
@@ -86,7 +102,6 @@ export default {
                const offsetWidth=newPercent*barWidth;
                this._offset(offsetWidth) 
           }
-          
         }
     },
 }

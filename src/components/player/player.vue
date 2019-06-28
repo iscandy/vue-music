@@ -95,11 +95,11 @@
               <i  class="icon-mini icon-play-mini" @click.stop="togglePlaying"  :class="playIcon"></i>
             </div>
           </div>
-          <div  class="control">
-            <div class="progress-circle">
-              <i  class="icon-playlist"></i>
-            </div>
+
+          <div class="control">
+            <i class="icon-playlist"></i>
           </div>
+
       </div>
      </transition>
 
@@ -121,16 +121,21 @@ import animations from 'create-keyframe-animation'
 import {prefixStyle} from '@/common/js/dom'
 //引入进度条组件
 import progressBar  from 'components/base/progress-bar/progress-bar'
+//引入圆环进度条
+import progressCircle from 'components/base/progress-circle/progress-circle.vue'
+
 let flag=true
 export default {
   data() {
     return {
       songReady: false,//标识歌曲是否准备好了
-      currentTime:0
+      currentTime:0,
+      radius:32,
     }
   },
   components:{
-    progressBar
+    progressBar,
+    progressCircle
   },
   computed: {
     ...mapGetters([
@@ -307,11 +312,12 @@ export default {
   },
   //当改变的时候，改变当前的播放的时间
    percentChange(percent){
-         this.$refs.audio.currentTime = this.currentSong.duration * percent
-         
-          if(!this.playing){
-              this.togglePlaying()
-          }
+     //当前的播放时长=总时长*百分比
+     this.$refs.audio.currentTime = this.currentSong.duration * percent
+      //如果当前不是播放状态的，让播放器播放
+      if(!this.playing){
+          this.togglePlaying()
+      }
     }
   
   },
