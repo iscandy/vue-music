@@ -12,7 +12,7 @@
                 
                 <!-- 播放按钮 -->
                 <div class="play-wrapper" v-show="songs.length" ref="playBtn">
-                    <div class="play" @click="random">
+                    <div class="play">
                         <i class="icon-play"></i>
                         <span class="text">随机播放全部</span>
                     </div>
@@ -111,15 +111,7 @@ export default {
                 index:index
             })
         },
-        random(){
-            //因为这里需要改变多个状态
-            //改变当前的播放状态
-            //改变当前的currentIndex
-            //改变当前的playList
-            //所以在这里我们需要定义一个randomPlay 的mutation
-           this.setRandomPlay({list:this.songs});
-        },
-        ...mapActions(['selectPlay','setRandomPlay'])
+          ...mapActions(['selectPlay']),
     },
   
     watch: {

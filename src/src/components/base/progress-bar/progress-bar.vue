@@ -74,7 +74,7 @@ export default {
          const percent=this.$refs.progress.clientWidth/barWidth;//百分比=进度条总长度/进度条的长度
          this.$emit('percentChange', percent)
       },
-        //点击进度条改变进度
+       //点击进度条改变进度
         //思路。点击位置/进度条的总长度=百分比，emit一个percent
         progressClick(e){
           //进度条的总长度

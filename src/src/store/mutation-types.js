@@ -12,6 +12,3 @@ export const SET_CURRENTINDEX='SET_CURRENTINDEX'
 export const SET_PLAYLIST='SET_PLAYLIST'
 //循环，随机或者顺序列表
 export const SET_SEQUENCELIST='SET_SEQUENCELIST'
-
-//random随机播放
-export const SET_RANDOMPLAY='SET_RANDOMPLAY'

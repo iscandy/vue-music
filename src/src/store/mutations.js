@@ -21,11 +21,11 @@ const mutations={
     [types.SET_CURRENTINDEX](state,index){
         state.currentIndex=index
     },
-    //存当前的播放列表
+    //播放列表（根据模式去改变）
     [types.SET_PLAYLIST](state,list){
         state.playlist=list
     },
-    //存初始的播放列表
+    //播放列表默认是顺序播放
     [types.SET_SEQUENCELIST](state,list){
         state.sequenceList=list
     }

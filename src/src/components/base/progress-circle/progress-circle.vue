@@ -11,6 +11,22 @@
     </div>  
 </template>
 
+<style scoped lang="stylus" rel="stylesheet/stylus">
+  @import "~common/stylus/variable"
+
+  .progress-circle
+    position: relative
+    circle
+      stroke-width: 8px
+      transform-origin: center
+      &.progress-background
+        transform: scale(0.9)
+        stroke: $color-theme-d
+      &.progress-bar
+        transform: scale(0.9) rotate(-90deg)
+        stroke: $color-theme
+</style>
+
 
 <script>
 export default {
@@ -24,14 +40,16 @@ export default {
             default: 0
         }
     },
-    computed: {
-      dashArray(){
-          return Math.PI*100
-      },
-      dashOffset(){
-           return (1 - this.percent) * this.dashArray
+    data() {
+      return {
+        dashArray: Math.PI * 100
       }
     },
+     computed: {
+      dashOffset() {
+        return (1 - this.percent) * this.dashArray
+      }
+    }
 }
 </script>
 

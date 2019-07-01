@@ -48,9 +48,9 @@
 
         <!-- 进度条部分 -->
         <div  class="progress-wrapper">
-          <span  class="time time-l">{{formate(currentTime)}}</span>
-            <progressBar :percent="percent" @percentChange='percentChange'></progressBar>
-          <span  class="time time-r">{{formate(currentSong.duration)}}</span>
+        <span  class="time time-l">{{formate(currentTime)}}</span>
+        <progressBar :percent="percent" @percentChange='percentChange'></progressBar>
+        <span  class="time time-r">{{formate(currentSong.duration)}}</span>
       </div>
         <!-- 控制按钮部分 -->
         <div class="operators">
@@ -91,6 +91,7 @@
           </div>
           <!-- 播放暂停歌曲 -->
           <div  class="control">
+            <!--加上圆环进度条 -->
             <progressCircle :radius="radius" :percent="percent">
               <i  class="icon-mini icon-play-mini" @click.stop="togglePlaying"  :class="playIcon"></i>
             </progressCircle>
@@ -110,7 +111,6 @@
     @canplay="ready"
     @error="error"
     @timeupdate="timeupdate"
-    @ended="end"
     ></audio>
 
   </div>
@@ -124,12 +124,11 @@ import {prefixStyle} from '@/common/js/dom'
 import progressBar  from 'components/base/progress-bar/progress-bar'
 //引入圆环进度条
 import progressCircle from 'components/base/progress-circle/progress-circle.vue'
-//引入工具函数打款当前的书序
-import  {shuffle} from 'common/js/util'
-//引入模式
-import {playMode} from '../../common/js/config'
+//引入模式的配置文件
+import {playMode} from 'common/js/config'
+//引入改变顺序的工具函数
+import {shuffle}  from  'common/js/util'
 
-//引入歌词的接口
 
 let flag=true
 export default {
@@ -167,10 +166,8 @@ export default {
     percent(){
       return this.currentTime /  this.currentSong.duration
     },
-    //模式播放按钮
-    modeIcon(){
-      //icon-sequence
-      return this.mode===playMode.sequence ? 'icon-sequence' : this.mode===playMode.loop ? 'icon-loop' : 'icon-random'
+    modeIcon(){//计算模式的icon
+      return this.mode==playMode.sequence ? `icon-sequence` : this.mode==playMode.loop ? `icon-loop` : `icon-random`
     }
   },
   methods: {
@@ -178,8 +175,7 @@ export default {
         setFullScreen:'SET_FULLSCREEN',
         setPlaying:'SET_PLAYING',
         setCurrentIndex:'SET_CURRENTINDEX',
-        setMode:'SET_MODE',
-        setPlayList:'SET_PLAYLIST'
+        setMode: 'SET_MODE'
     }),
    open(){
      this.setFullScreen(true)
@@ -203,7 +199,7 @@ export default {
       let index=this.currentIndex;
       index--;
       if(index==-1){
-        index=this.playlist.length-1; 
+        index=this.playlist.length; 
       }
       this.setCurrentIndex(index)
       if(!this.playing){
@@ -227,26 +223,6 @@ export default {
         }
         this.songReady=false
     },
-    //改变歌曲的模式
-   changeMode(){
-          const mode = (this.mode + 1) % 3
-          this.setMode(mode)
-          let list = null
-          if(mode === playMode.random){
-            list = shuffle(this.sequenceList)
-          }else{
-            list = this.sequenceList
-          }
-          this.resetCurrentIndex(list) 
-          this.setPlayList(list)
-    },
-    //重置当前的索引
-    resetCurrentIndex(list){
-        let index = list.findIndex((item) => { //es6语法 findIndex
-            return item.id === this.currentSong.id
-        })
-        this.setCurrentIndex(index)
-    },
     ready(){
         this.songReady=true
     },
@@ -256,22 +232,6 @@ export default {
     timeupdate(e){
       this.currentTime=e.target.currentTime
     },
-    //当歌曲播放完成的时候
-    end(){
-      //判断当前的播放模式
-      if(this.mode==playMode.loop){
-        this.loop()
-      }else{
-        this.next();
-      }
-    },
-    loop(){
-      //设置当前的currentTime
-      this.currentTime=0;
-      //设置自动播放下一首歌
-      this.$refs.audio.play()
-    },
-    
     //将时间戳转换
     formate(interval){
       interval = interval | 0 //向下取整
@@ -290,6 +250,7 @@ export default {
     //动画一进入的时候
     enter(el,done){
       let {x,y,scale}=this._getPosAndScale();
+      console.log(x,y,scale);
       let animation={
         0:{
           transform: `translate3d(${x}px, ${y}px, 0) scale(${scale})`
@@ -323,7 +284,7 @@ export default {
       this.$refs.cdWrapper.style.animation=''
       
     },
-    //离开的时机，从大的cd到小的cs的重点
+    //离开的时机，从大的cd到小的cd的中点
     leave(el, done){
         let transform=prefixStyle('transform');
         const {x, y, scale} = this._getPosAndScale()
@@ -337,10 +298,25 @@ export default {
         this.$refs.cdWrapper.style.transition = ''
         this.$refs.cdWrapper.style[transform] = ''
     },
+    changeMode(){
+      let mode=(this.mode+1)%3 //只有三个求模
+      this.setMode(mode);
+      //改变当前的播放的列表的顺序
+      let list=null;
+      //当当前的播放模式是随机播放的时候才改变当前的播放顺序
+      if(mode==playMode.random){
+          
+          list=shuffle(this.sequenceList.slice());//获取到当前的播放列表  
+      }else{
+          let list=this.playlist;
+      }
+      this.setPlaying(list);
+     
+    },
   //首先需要获取到初始距离和比例
   _getPosAndScale(){
     const miniWidth=40;//mini-player的小cd的宽度
-    const normalWidth=window.innerWidth * 0.8;//打的cs的宽度
+    const normalWidth=window.innerWidth * 0.8;//大的cs的宽度
      const normalpaddingTop=80;//大的cd顶部距离最上边界
 
     //小cd的中心点的坐标
@@ -374,10 +350,7 @@ export default {
   },
   watch: {
     //监听currentSong的变化
-    currentSong(newSong, oldSong){ //确保DOM已存在
-        if(newSong.id === oldSong.id) {
-          return
-        }
+    currentSong(newSong){ //确保DOM已存在
         this.$nextTick(()=>{
             this.$refs.audio.play();
         })
@@ -386,7 +359,7 @@ export default {
       this.$nextTick(()=>{
         isplay ? this.$refs.audio.play() : this.$refs.audio.pause()
       })
-    }  
+    }
   },
 }
 </script>
@@ -624,10 +597,9 @@ export default {
           color: $color-theme-d
         .icon-mini
           font-size: 32px
-          position absolute
-          left 0px
-          top  0px
-
+          position:absolute
+          left:0
+          top:0
   @keyframes rotate
     0%
       transform: rotate(0)
