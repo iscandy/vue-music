@@ -5,7 +5,7 @@ import axios from 'axios'
 export function getLyric(mid){
     const url = '/api/lyric'
     return new Promise((resolve,reject)=>{
-        let data=Object.assgin({},commonParams,{
+        let data=Object.assign({},commonParams,{
             songmid: mid,
             pcachetime: +new Date(),
             platform: 'yqq',
@@ -14,10 +14,10 @@ export function getLyric(mid){
             g_tk: 5381, //会变化，以实时数据为准
             format: 'json' //规定为json请求
         })
-        axios.get(url,{params:data}).then((res)=>{
-            resolve(res.data);
-        }).catch((err)=>{
-            reject(err);
+        axios.get(url,{params: data}).then(res=>{
+            resolve(res.data)
+        }).catch(err=>{
+            reject(err)
         })
     })
 }

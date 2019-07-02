@@ -1,3 +1,8 @@
+//引入获取歌词的接口
+import {getLyric}  from 'api/song.js'
+import {ERR_OK} from 'api/config'
+import { Base64 } from 'js-base64';
+
 class Song{
     //因为参数过多，我们把参数放在一个对象中去
     constructor({id, mid, singer, name, album, duration, image, url}){
@@ -9,6 +14,25 @@ class Song{
         this.duration=duration,
         this.image=image,
         this.url=url
+    }
+    //获取到歌词的函数
+    getLyric(){
+        if(this.lyric){
+            Promise.resolve(this.lyric);
+        }else{
+            return new Promise((resolve,reject)=>{
+                getLyric(this.mid).then(res=>{
+                    if(res.retcode ==ERR_OK){
+                        this.lyric = Base64.decode(res.lyric);
+                        resolve(this.lyric);
+                    }else{
+                        reject('error lyric');
+                    }
+                }).catch(err=>{
+                    reject('error lyric');
+                })
+            })
+        }
     }
 }
 
@@ -42,3 +66,7 @@ function filterSinger(singer) {
     return ret.join('/');
     
 }
+
+
+
+

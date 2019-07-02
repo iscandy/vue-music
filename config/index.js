@@ -41,18 +41,18 @@ module.exports = {
            }
         },
         //获取到歌词的信息
-        '/api/lyric':{
-          target:`https://szc.y.qq.com/lyric/fcgi-bin/fcg_query_lyric_new.fcg`,
-          secure:false,
-          changeOrigin:true,
-          bypass:function(req,res,proxyOptions){
-            req.headers.referer='https://y.qq.com/'
-            req.headers.host='c.y.qq.com'
-          }，
-          pathRewrite:{
-            '^/api/lyric': 'lyric'
-           }
-        }
+         '/api/lyric':{
+            target:'https://szc.y.qq.com/lyric/fcgi-bin/fcg_query_lyric_new.fcg',
+            secure:false,
+            changeOrigin:true,
+            bypass:function(req,res,proxyOptions){
+              req.headers.referer='https://y.qq.com/'
+              req.headers.host='c.y.qq.com'
+            },
+            pathRewrite:{
+            '^/api/lyric': ''
+            }
+       }
     },
 
     // Various Dev Server settings

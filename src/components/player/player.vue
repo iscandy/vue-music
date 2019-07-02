@@ -22,28 +22,47 @@
           <h2 class="subtitle">{{currentSong.singer}}</h2>
       </div>
       <!-- 中间唱片转圈 -->
-      <div class="middle">
+      <div class="middle"
+           @touchstart.prevent="middleTouchStart"
+           @touchmove.prevent="middleTouchMove"
+           @touchend.prevent="middleTouchEnd"
+
+      >
+
+
           <!-- 唱片下方带歌词 -->
-          <div class="middle-l">
+          <div class="middle-l" ref="middleL">
               <div class="cd-wrapper"  ref="cdWrapper">
                 <div class="cd"  :class="cdCls">
                   <img class="image" :src="currentSong.image">
                 </div>
               </div>
-              <!-- <div class="playing-lyric-wrapper">
-                <div class="playing-lyric">制作人：周杰伦</div>
-              </div> -->
+              <div class="playing-lyric-wrapper">
+                <div class="playing-lyric">{{playingLyric}}</div>
+              </div>
           </div>
           <!-- 展开全部歌词 -->
-          <div class="middle-r" style="display:none"></div>
+         <Scroll class="middle-r" ref="lyricList" :data="currentLyric && currentLyric.lines">
+              <div class="lyric-wrapper">
+                      <div v-if="currentLyric">
+                            <p ref="lyricLine"
+                                class="text"
+                                :class="{'current': currentLineNum === index}"
+                                v-for="(line, index) in currentLyric.lines" :key="index">
+                                {{line.txt}}
+                            </p>
+                      </div>
+                </div>
+          </Scroll>
           
       </div>
 
       <!-- 底部控制部分 -->
       <div class="bottom">
         <!-- dot部分 -->
-        <div class="dot-wrapper">
-          <span class="dot active"></span><span class="dot"></span>
+        <div class="dot-wrapper" >
+          <span class="dot" :class="{active:currentShow=='cd'}"></span>
+          <span class="dot" :class="{active:currentShow=='lyric'}"></span>
         </div>
 
         <!-- 进度条部分 -->
@@ -127,22 +146,35 @@ import progressCircle from 'components/base/progress-circle/progress-circle.vue'
 //引入工具函数打款当前的书序
 import  {shuffle} from 'common/js/util'
 //引入模式
-import {playMode} from '../../common/js/config'
+import {playMode} from 'common/js/config'
+//引入歌词解析库
+import Lyric from 'lyric-parser'
+//引入scroll组件
+import Scroll from 'components/base/scroll/scroll'
 
-//引入歌词的接口
+const transform=prefixStyle('transform');
+const transitionDuration=prefixStyle('transition-duration');
 
-let flag=true
 export default {
   data() {
     return {
       songReady: false,//标识歌曲是否准备好了
       currentTime:0,
       radius:32,
+      currentLyric:[],//歌词数组
+      currentLineNum:[],//当前播放的歌词的索引
+      currentShow:'cd',
+      playingLyric: ''//当前播放的歌词
     }
   },
   components:{
     progressBar,
-    progressCircle
+    progressCircle,
+    Scroll
+  },
+  created() {
+    this.touch={},
+    this.currentLyric=null
   },
   computed: {
     ...mapGetters([
@@ -187,19 +219,30 @@ export default {
     close(){
       this.setFullScreen(false)
     },
-    //播放和暂停
+    //播放和暂停,
     togglePlaying(){
        if(!this.songReady){
           return
         }
-      //f发起一个playing 的 mutation
+        //解决当歌曲暂停的时候，歌词还在跳动
+        if(this.currentLyric){
+            this.currentLyric.togglePlay()//歌词切换播放暂停
+        }
+      //发起一个playing 的 mutation
       this.setPlaying(!this.playing)
     },
     //上一首歌
     prev(){
-       if(!this.songReady){
+      if(!this.songReady){
+        return
+      }
+
+      if(this.playlist.length==1){
+          this.loop()
           return
-        }
+      }
+
+      
       let index=this.currentIndex;
       index--;
       if(index==-1){
@@ -216,6 +259,12 @@ export default {
         if(!this.songReady){
           return
         }
+
+        if(this.playlist.length==1){
+          this.loop()
+          return
+        }
+
         let index=this.currentIndex;
         index++;
         if(index==this.playlist.length){
@@ -247,6 +296,73 @@ export default {
         })
         this.setCurrentIndex(index)
     },
+    //切换歌词和唱片
+    middleTouchStart(e){
+        //是否开始滑动
+        this.touch.initiated=true//初始化标志
+        this.touch.x1=e.touches[0].pageX;//初始化位置
+        this.touch.y1=e.touches[0].pageY;//初始化的y的位置
+    },  
+    middleTouchMove(e){
+      if(!this.touch.initiated){
+              return 
+      }
+      let deltaX =e.touches[0].pageX- this.touch.x1;//x的横向的滑动的距离
+      let deltaY =e.touches[0].pageY- this.touch.y1;//x的横向的滑动的距离
+      
+      //判断两个距离，如果是纵向滑动的时候，不做任何处理
+      if(Math.abs(deltaY)-Math.abs(deltaX) >0){
+        return 
+      }else{
+        //参考位置 歌词的左边相对页面的偏移
+       let offsetLeft= this.currentShow==='cd' ? 0 : -window.innerWidth
+       //向左边滑动不能小于 -window.innerWidth  向右边滑动不能大于 window.innerWidth
+         //滑入歌词offsetWidth = 0 + deltaX(负值)  歌词滑出offsetWidth = -innerWidth + delta(正值)
+        const offsetWidth = Math.min(0, Math.max(-window.innerWidth,offsetLeft+deltaX))
+        this.touch.percent=Math.abs(offsetWidth/window.innerWidth);
+        //  console.log(offsetWidth, this.touch.percent);
+        //记住这里 this.$refs.lyricList得到的是一个component组件，当操作这个组件的元素需要用this.$refs.lyricList.$el
+        this.$refs.lyricList.$el.style[transform]=`translate3d(${offsetWidth}px,0,0)`
+
+        //唱片部分渐隐
+        this.$refs.middleL.style['opacity']=1-this.touch.percent
+        this.$refs.middleL.style[transitionDuration] = 0
+        this.$refs.lyricList.$el.style[transitionDuration] = 0
+      }
+    },
+    middleTouchEnd(){
+        this.touch.initiated=false//初始化标志
+        let offsetWidth;
+        let opacity;
+        //当当前的是cd唱片
+        if(this.currentShow === 'cd'){
+            if(this.touch.percent>0.1){ 
+                offsetWidth=-window.innerWidth;
+                opacity=0
+                this.currentShow = 'lyric'
+            }else{
+              offsetWidth = 0
+              opacity = 1
+            }
+      //当当前的是歌词
+       }else if(this.currentShow === 'lyric'){
+          if(this.touch.percent<0.9){ 
+              offsetWidth=0;
+              opacity=1
+              this.currentShow = 'cd'
+          }else{
+              offsetWidth=-window.innerWidth;
+              opacity=0
+          }
+         
+       }
+      const time = 300
+      this.$refs.middleL.style['opacity']=opacity
+      this.$refs.lyricList.$el.style[transform]=`translate3d(${offsetWidth}px,0,0)`
+      this.$refs.middleL.style[transitionDuration] = `${time}ms`
+      this.$refs.lyricList.$el.style[transitionDuration] =`${time}ms`
+
+    },
     ready(){
         this.songReady=true
     },
@@ -270,8 +386,11 @@ export default {
       this.currentTime=0;
       //设置自动播放下一首歌
       this.$refs.audio.play()
+      //解决当是单曲循环的时候，播放完成之后歌曲并没有回到开头
+      if(this.currentLyric){
+        this.currentLyric.seek(0) //歌词偏移到一开始
+      }
     },
-    
     //将时间戳转换
     formate(interval){
       interval = interval | 0 //向下取整
@@ -369,6 +488,37 @@ export default {
       if(!this.playing){
           this.togglePlaying()
       }
+      if(this.currentLyric){
+          //让歌曲进行偏移
+          let currentTime=this.currentSong.duration * percent
+          this.currentLyric.seek(currentTime * 1000)
+      }
+    },
+    handleLyric({lineNum, txt}){
+      this.currentLineNum = lineNum
+      if(lineNum>5){
+         let lineeEl = this.$refs.lyricLine[lineNum - 5] //保证歌词在中间位置滚动
+        //让滚动滚动到指定的位置减去5行
+        this.$refs.lyricList.scrollToElement(lineeEl)
+      }else{
+        //滚动回到顶部
+        this.$refs.lyricList.scrollTo(0,0,1000)
+      }
+      this.playingLyric=txt
+    },
+    getLyric(){
+        this.currentSong.getLyric().then(lyricStr=>{
+            //对当前的歌词进行解析
+            this.currentLyric= new Lyric(lyricStr,this.handleLyric)
+            //当歌曲播放的时候，调用Lyric实例 的 play()方法
+            if(this.playing){
+                this.currentLyric.play()
+            } 
+        }).catch(err=>{//当请求失败时处理
+            this.currentLyric = null
+            this.playingLyric = ''
+            this.currentLineNum = 0
+        })
     }
   
   },
@@ -378,9 +528,15 @@ export default {
         if(newSong.id === oldSong.id) {
           return
         }
-        this.$nextTick(()=>{
-            this.$refs.audio.play();
-        })
+
+        if(this.currentLyric){
+          this.currentLyric.stop() //切换歌曲后，清空前一首歌歌词Layric实例中的定时器
+        }
+        //手机微信处理
+        setTimeout(()=>{
+          this.$refs.audio.play();
+          this.getLyric()
+        },1000)
     },
     playing(isplay){
       this.$nextTick(()=>{
