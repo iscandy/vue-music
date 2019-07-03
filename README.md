@@ -1,4 +1,4 @@
-<<<<<<< .merge_file_a12240
+
 # vue-music
 
 > music
