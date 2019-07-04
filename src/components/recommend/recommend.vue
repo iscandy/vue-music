@@ -95,7 +95,7 @@ export default {
        //mixin
        handlePlayList(playlist){
            let bottom=this.playlist.length ? `60px` :`0px`
-           this.$refs.scroll.style['bottom']=bottom
+           this.$refs.scroll.$el.style['bottom']=bottom
            this.$refs.scroll.refresh();
        }
     },
