@@ -32,6 +32,10 @@ const mutations={
     //改变当前的推荐歌单
     [types.SET_DISC](state,disc){
         state.disc=disc
+    },
+    //改变排行榜的歌单
+    [types.SET_RANK](state,rank){
+        state. rank=rank
     }
 }
 export default mutations

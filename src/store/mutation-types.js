@@ -18,3 +18,6 @@ export const SET_RANDOMPLAY='SET_RANDOMPLAY'
 
 //推荐的歌单的传递给子路由的参数
 export const SET_DISC='SET_DISC'
+
+//排行版的歌单
+export const SET_RANK='SET_RANK'

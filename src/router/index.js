@@ -10,6 +10,7 @@ import search from 'components/search/search.vue'
 //二级路由
 import singerDetail from 'components/singer-detail/singer-detail.vue'
 import Disc  from 'components/disc/disc.vue'
+import rankDetail from 'components/rank-detail/rank-detail.vue'
 
 Vue.use(Router)
 
@@ -41,7 +42,13 @@ export default new Router({
     {
       path:'/rank',
       component:rank,
-      name:'排行'
+      name:'排行',
+      children:[
+        {
+          path:'/rank/:id',
+          component:rankDetail
+        }
+      ]
     },
     {
       path:'/search',

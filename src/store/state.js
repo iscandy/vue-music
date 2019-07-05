@@ -3,6 +3,7 @@ import {playMode}  from 'common/js/config'
 const state={
     singer:{},//歌手
     disc:{},//推荐的歌单
+    rank:{},//排行榜的歌单
     
     playing:true,//是否在播放
     fullScreen:true,//展开和隐藏
