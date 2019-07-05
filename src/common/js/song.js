@@ -53,6 +53,7 @@ export default function createSong(musicData,songVkey){
 }
 
 
+
 //格式化处理singer数据
 function filterSinger(singer) {
     let ret=[]
@@ -69,4 +70,20 @@ function filterSinger(singer) {
 
 
 
+//推荐页歌手详情页面部分
+export function creatSongList(musicData,songVkey){
+    console.log(musicData);
+    return new Song({
+        id: musicData.id,
+        mid: musicData.mid,
+        singer: filterSinger(musicData.singer),
+        name: musicData.name,
+        album: musicData.album.name,
+        duration: musicData.interval,
+        image: `https://y.gtimg.cn/music/photo_new/T002R300x300M000${musicData.album.mid}.jpg?max_age=2592000`,
+        //注意guid以实时数据为主
+        url: `http://ws.stream.qqmusic.qq.com/C400${musicData.mid}.m4a?vkey=${songVkey}&guid=6319873028&uin=0&fromtag=66`
+    })
+
+}
 

@@ -15,3 +15,6 @@ export const SET_SEQUENCELIST='SET_SEQUENCELIST'
 
 //random随机播放
 export const SET_RANDOMPLAY='SET_RANDOMPLAY'
+
+//推荐的歌单的传递给子路由的参数
+export const SET_DISC='SET_DISC'

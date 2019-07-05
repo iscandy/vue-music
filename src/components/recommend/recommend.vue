@@ -14,7 +14,7 @@
                 <div  class="recommend-list" style="pointer-events: auto;">
                     <h1  class="list-title">热门歌单推荐</h1>
                     <ul>
-                        <li class="item" v-for='(item,index) in recommendList' :key="index">
+                        <li class="item" v-for='(item,index) in recommendList' :key="index" @click="selectItem(item)">
                             <div class="icon">
                                 <img width="60" height="60" v-lazy="item.imgurl">
                             </div>
@@ -31,6 +31,9 @@
                 <loading v-if="!recommendList.length"></loading>
             </div> 
         </scroll>
+
+        <router-view></router-view>
+
     </div>
 </template>
 
@@ -48,6 +51,9 @@ import loading from 'components/base/loading/loading'
 
 //引入minxin
 import {playlistMixin} from 'common/js/mixin'
+
+//引入mutations
+import{mapMutations} from 'vuex'
 export default {
     mixins:[playlistMixin],
     created(){
@@ -68,6 +74,9 @@ export default {
         }
     },
     methods: {
+        ...mapMutations({
+            set_disc:'SET_DISC'
+        }),
        //一般在methods里面写方法的具体实现，不要在created或者mounted等生命周期中写，方便管理
        _getRecommend(){
             getRecommend().then(res=>{
@@ -97,6 +106,11 @@ export default {
            let bottom=this.playlist.length ? `60px` :`0px`
            this.$refs.scroll.$el.style['bottom']=bottom
            this.$refs.scroll.refresh();
+       },
+       //修改详情页的数据
+       selectItem(item){
+           this.$router.push(`/recommend/${item.dissid}`);
+           this.set_disc(item);
        }
     },
 }

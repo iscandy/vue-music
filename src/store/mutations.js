@@ -21,13 +21,17 @@ const mutations={
     [types.SET_CURRENTINDEX](state,index){
         state.currentIndex=index
     },
-    //存当前的播放列表
+    //改变的播放列表
     [types.SET_PLAYLIST](state,list){
         state.playlist=list
     },
-    //存初始的播放列表
+    //改变初始的播放列表
     [types.SET_SEQUENCELIST](state,list){
         state.sequenceList=list
+    },
+    //改变当前的推荐歌单
+    [types.SET_DISC](state,disc){
+        state.disc=disc
     }
 }
 export default mutations

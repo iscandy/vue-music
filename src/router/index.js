@@ -6,8 +6,10 @@ import recommend from 'components/recommend/recommend.vue'
 import singer from 'components/singer/singer.vue'
 import rank from 'components/rank/rank.vue'
 import search from 'components/search/search.vue'
-import singerDetail from 'components/singer-detail/singer-detail.vue'
 
+//二级路由
+import singerDetail from 'components/singer-detail/singer-detail.vue'
+import Disc  from 'components/disc/disc.vue'
 
 Vue.use(Router)
 
@@ -16,7 +18,14 @@ export default new Router({
     {
       path:'/recommend',
       component:recommend,
-      name:'推荐'
+      name:'推荐',
+      children:[
+        {
+          path:'/recommend/:id',
+          component:Disc
+
+        }
+      ]
     },
     {
       path:'/singer',

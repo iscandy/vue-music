@@ -52,6 +52,19 @@ module.exports = {
             pathRewrite:{
             '^/api/lyric': ''
             }
+       },
+       //获取到推荐页面的歌单部分
+       '/api/getSongList':{
+         target:'https://c.y.qq.com/qzone/fcg-bin/fcg_ucc_getcdinfo_byids_cp.fcg',
+         secure:false,
+         changeOrigin:true,
+         bypass:function(req,res,proxyOptions){
+          req.headers.referer='https://y.qq.com/',
+          req.headers.host='c.y.qq.com'
+         },
+         pathRewrite:{
+         '^/api/getSongList': ''
+         }
        }
     },
 

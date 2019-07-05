@@ -40,3 +40,35 @@ export function getRecommendList(){
         })
     })
 }
+
+
+//获取到推荐的详情页面的数据
+export const getSongList=function(disstid){
+    return new Promise(function(resolve,reject){
+        let url='/api/getSongList';
+        let data=Object.assign({},commonParams,{
+            uin: 0,
+            format: 'json',
+            notice: 0,
+            needNewCode: 1,
+            new_format: 1,
+            pic: 500,
+            disstid, //关键数据
+            type: 1,
+            json: 1,
+            utf8: 1,
+            onlysong: 0,
+            picmid: 1,
+            nosign: 1,
+            song_begin: 0,
+            platform: 'h5',
+            song_num: 100,
+            _: +new Date()
+        })
+        axios.get(url,{params:data}).then(res=>{
+            resolve(res.data)
+        }).then(err=>{
+            reject(err)
+        })
+    })
+}

@@ -17,3 +17,6 @@ export const currentSong = (state) => {
     //返回当前播放的结果
     return state.playlist[state.currentIndex] || {}
 }
+
+//推荐的歌单的
+export const disc=(state)=>state.disc
