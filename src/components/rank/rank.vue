@@ -1,19 +1,23 @@
 <template>
-    <div class="rank">
-        <scroll class="toplist"  :data="topList">
-            <ul>
-                <li   class="item" v-for="(item,index) in topList" :key='index'>
-                    <div   class="icon">
-                        <img   width="100" height="100"  v-lazy="item.picUrl">
-                    </div>
-                    <ul   class="songlist">
-                        <li  class="song" v-for="(song,index) in item.songList" :key="index" @click="selectItem(item)">
-                            <span>{{index+1}} </span><span>{{song.singername}}- {{song.songname}}</span>
-                        </li>
-                    </ul>
-                </li>
-            </ul>
-        </scroll>
+    <div>
+
+        <div class="rank" ref='rank'>
+            <scroll class="toplist"  :data="topList" ref="scroll">
+                <ul>
+                    <li   class="item" v-for="(item,index) in topList" :key='index'>
+                        <div   class="icon">
+                            <img   width="100" height="100"  v-lazy="item.picUrl">
+                        </div>
+                        <ul   class="songlist">
+                            <li  class="song" v-for="(song,index) in item.songList" :key="index" @click="selectItem(item)">
+                                <span>{{index+1}} </span><span>{{song.singername}}- {{song.songname}}</span>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </scroll>
+        </div>
+
         <router-view></router-view>
     </div>
 </template>
@@ -24,7 +28,9 @@ import {getRankList} from 'api/rank.js'
 import {ERR_OK} from 'api/config'
 import scroll from 'components/base/scroll/scroll'
 import {mapMutations} from 'vuex'
+import {playlistMixin} from '../../common/js/mixin'
 export default {
+    mixins:[playlistMixin],
     created(){
         this._getRankList()
     },
@@ -53,6 +59,13 @@ export default {
                 path:`/rank/${rank.id}`
             });
             this.set_rank(rank);
+        },
+        //底部自适应
+        handlePlayList(playlist){
+           let bottom=playlist.length ? '60' : 0;
+           this.$refs.rank.style['bottom']=`${bottom}px`
+           this.$refs.scroll.refresh();
+
         }
     }
 }

@@ -1,5 +1,5 @@
 <template>
-   <div class="music-list">
+   <div class="music-list" >
         <div class="back" @click="back">
                 <i class="icon-back"></i>
         </div>
@@ -8,8 +8,6 @@
         <div class="bg-image" :style="bgStyle"  ref="bgImage">
             <!-- iphone手机下高斯模糊效果 -->
             <div class="filter" ref="filter"></div>
-
-                
                 <!-- 播放按钮 -->
                 <div class="play-wrapper" v-show="songs.length" ref="playBtn">
                     <div class="play" @click="random">
@@ -25,7 +23,7 @@
         <scroll :data="songs" class="list" ref="list" :probeType='probeType' :listenScroll='listenScroll' @scroll="scroll">
            
             <div class="song-list-wrapper">
-                    <song-list :songs="songs" @select='selectItem'></song-list>
+                    <song-list :songs="songs" :rank="rank" @select='selectItem'></song-list>
             </div>
             
             <!-- loading部分 -->
@@ -33,8 +31,6 @@
                 <loading></loading>
             </div>
         </scroll>
-
-
     </div>
     
 </template>
@@ -64,6 +60,10 @@ export default {
         title:{
             type:String,
             default:''
+        },
+        rank:{
+            type:Boolean,
+            default: false
         }
     },
     components:{
@@ -128,7 +128,7 @@ export default {
          //mixins部分
         handlePlayList(playlist){
             let bottom= playlist.length ? `60px` : `0px`;
-            this.$refs.list.$el.style['bottom']=`${bottom}px`//底部播放器适配
+            this.$refs.list.$el.style['bottom']=`${bottom}`//底部播放器适配
             this.$refs.list.refresh();//强制刷新滚动条
         }
     },

@@ -10,7 +10,7 @@ export function getRankList(){
     return jsonp(url,data,options)
 }
 
-//获取都爱排行版的歌单
+//获取排行绑的歌单
 export function getRankDetail(topid){
     const url = "https://c.y.qq.com/v8/fcg-bin/fcg_v8_toplist_cp.fcg"
     let data=Object.assign({},commonParams,{

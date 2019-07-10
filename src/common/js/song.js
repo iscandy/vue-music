@@ -72,7 +72,6 @@ function filterSinger(singer) {
 
 //推荐页歌手详情页面部分
 export function creatSongList(musicData,songVkey){
-    console.log(musicData);
     return new Song({
         id: musicData.id,
         mid: musicData.mid,
@@ -86,4 +85,3 @@ export function creatSongList(musicData,songVkey){
     })
 
 }
-

@@ -21,5 +21,5 @@ export const currentSong = (state) => {
 //推荐的歌单的
 export const disc=(state)=>state.disc
 
-//排行的歌单
+//排行榜的歌单
 export const rank=(state)=>state.rank;

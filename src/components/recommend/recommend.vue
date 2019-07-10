@@ -1,39 +1,39 @@
-<template>
-    <div  class="recommend">
-        <scroll class="recommend-content" :data="recommendList" ref="scroll">
-            <div>
-                <!--轮播部分-->
-                <slider v-if="recommend.length" >
-                    <div v-for="(item,index) in recommend" :key="index">
-                        <a :href="item.linkUrl" target="_blank">
-                            <img :src="item.picUrl" @load="loadImage" class="needsclick">
-                        </a>
+<template> 
+    <div>
+        <div  class="recommend" ref='recommend'>
+            <scroll class="recommend-content" :data="recommendList" ref="scroll">
+                <div>
+                    <!--轮播部分-->
+                    <slider v-if="recommend.length" >
+                        <div v-for="(item,index) in recommend" :key="index">
+                            <a :href="item.linkUrl" target="_blank">
+                                <img :src="item.picUrl" @load="loadImage" class="needsclick">
+                            </a>
+                        </div>
+                    </slider>
+                    <!-- 列表部分-->
+                    <div  class="recommend-list" style="pointer-events: auto;">
+                        <h1  class="list-title">热门歌单推荐</h1>
+                        <ul>
+                            <li class="item" v-for='(item,index) in recommendList' :key="index" @click="selectItem(item)">
+                                <div class="icon">
+                                    <img width="60" height="60" v-lazy="item.imgurl">
+                                </div>
+                                <div class="text">
+                                    <h2 class="name">{{item.creator.name}}</h2>
+                                    <p class="desc">
+                                        {{item.dissname}}
+                                    </p>
+                                </div>
+                            </li>
+                        </ul>
                     </div>
-                </slider>
-                <!-- 列表部分-->
-                <div  class="recommend-list" style="pointer-events: auto;">
-                    <h1  class="list-title">热门歌单推荐</h1>
-                    <ul>
-                        <li class="item" v-for='(item,index) in recommendList' :key="index" @click="selectItem(item)">
-                            <div class="icon">
-                                <img width="60" height="60" v-lazy="item.imgurl">
-                            </div>
-                            <div class="text">
-                                <h2 class="name">{{item.creator.name}}</h2>
-                                <p class="desc">
-                                    {{item.dissname}}
-                                </p>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-                <!--loading -->
-                <loading v-if="!recommendList.length"></loading>
-            </div> 
-        </scroll>
-
+                    <!--loading -->
+                    <loading v-if="!recommendList.length"></loading>
+                </div> 
+            </scroll>
+        </div>
         <router-view></router-view>
-
     </div>
 </template>
 
@@ -103,8 +103,8 @@ export default {
        },
        //mixin
        handlePlayList(playlist){
-           let bottom=this.playlist.length ? `60px` :`0px`
-           this.$refs.scroll.$el.style['bottom']=bottom
+           let bottom=this.playlist.length ? `60` :`0`
+           this.$refs.recommend.style['bottom']=`${bottom}px`
            this.$refs.scroll.refresh();
        },
        //修改详情页的数据

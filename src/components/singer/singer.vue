@@ -1,6 +1,6 @@
 <template>
-    <div class="listview-wrap">
-        <listview :data="singerList" @select="selectSinger" ref="list"></listview>
+    <div class="listview-wrap" ref="list">
+        <listview :data="singerList" @select="selectSinger" ref="scroll" ></listview>
         <transition name="slide">
             <router-view ></router-view>
         </transition>
@@ -107,10 +107,9 @@ export default {
              this.set_singer(singer);
         },
         handlePlayList(playlist){
-            let bottom=playlist.length ? `60px`: `0px`
-            this.$refs.list.$el.style['bottom']=bottom;
-            this.$refs.list.refresh();//重刷新
-
+            let bottom=playlist.length ? `60`: `0`
+            this.$refs.list.style['bottom']=`${bottom}px`;
+            this.$refs.scroll.refresh();//重刷新
         },
         ...mapMutations({
             set_singer:'SET_SINGER'
