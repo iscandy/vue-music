@@ -65,7 +65,20 @@ module.exports = {
          pathRewrite:{
          '^/api/getSongList': ''
          }
-       }
+       },
+       //根据关键字获取到搜索列表，做跨域处理
+      '/api/search':{
+        target:'https://c.y.qq.com/soso/fcgi-bin/search_for_qq_cp',
+        secure:false,
+        changeOrigin:true,
+        bypass:function(req,proxyOptions){
+          req.headers.referer='https://y.qq.com/m/index.html',
+          req.headers.origin='https://y.qq.com'
+        },
+        pathRewrite:{
+          '^/api/search': ''
+        }
+      }
     },
 
     // Various Dev Server settings
