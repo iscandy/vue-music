@@ -25,6 +25,11 @@ export default {
         listenScroll:{
             type:Boolean,
             default:false
+        },
+        //是否需要上拉刷新
+        pullup:{
+            type:Boolean,
+            default:false
         }
     },
     data(){
@@ -56,6 +61,15 @@ export default {
                     me.$emit('scroll',pos)
                 })
              }
+
+            //判断是否需要上拉刷新
+            if(this.pullup){
+                this.scroll.on('scrollEnd',(pos)=>{
+                    if(this.scroll.y<=(this.scroll.maxScrollY+50)){//当滑动到底部50px处
+                        this.$emit('scrollToEnd');//向外暴露一个scrollEnd 事件
+                    }    
+                })
+            }
         },
         refresh() {
            // 强制 scroll 重新计算，当 better-scroll 中的元素发生变化的时候调用此方法

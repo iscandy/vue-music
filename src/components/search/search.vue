@@ -3,7 +3,7 @@
        <!-- 搜索框-->
         <search-box ref="search" @query="onQueryChange"></search-box>
        <!-- 搜索框没有搜索关键之的展示-->
-        <div class="shortcut-wrapper" >
+        <div class="shortcut-wrapper" v-show="!query" ref="shortcut_wrapper" >
             <div  class="shortcut">
                  <div  class="hot-key">
                     <h1  class="title">热门搜索</h1>
@@ -14,7 +14,7 @@
             </div>
         </div>
        <!-- 搜索框有关键字的展示 -->
-        <div class="search-result" style="display:none">
+        <div class="search-result"  v-show="query" ref="search_result">
             <suggest :query="query" :showSinger="showSinger"></suggest>
         </div> 
     </div>
@@ -25,7 +25,10 @@ import searchBox from '../base/search-Box/search-Box'
 import {getHotKey} from 'api/search.js'
 import {ERR_OK} from 'api/config'
 import suggest from '../../components/suggest/suggest'
+//做底部处理
+import {playlistMixin} from 'common/js/mixin.js'
 export default {
+   mixins:['playlistMixin'],
     components:{
         searchBox,
         suggest
@@ -53,8 +56,18 @@ export default {
             this.$refs.search.set_query(item.k);
         },
         onQueryChange(query){
-            //根据得到的关键字，请求相关数据
+            //根据得到的关键字
             this.query=query
+        },
+       // 底部自适应处理
+        handlePlayList(playlist){
+          if(playlist.length){
+            let bottom=60
+          }else{
+            let bottom=0
+          }
+          this.$refs.shortcut_wrapper.style['bottom']=`${bottom}px`
+          this.$refs.search_result.style['bottom']=`${bottom}px`
         }
     }
 }
