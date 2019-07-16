@@ -25,3 +25,10 @@ export  const selectPlay=function({commit,state},{list,index}){
         //设置为全屏
         commit(types.SET_FULLSCREEN, true)
  }
+
+
+ export const inner_song=function({commit,state},{song}){
+     //做提交操作
+     console.log(song);
+
+ }

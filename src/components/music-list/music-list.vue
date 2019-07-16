@@ -27,7 +27,7 @@
             </div>
             
             <!-- loading部分 -->
-            <div class="loading-container" v-show="!songs.length">
+            <div class="loading-container" v-show="!songs">
                 <loading></loading>
             </div>
         </scroll>
@@ -69,7 +69,7 @@ export default {
     components:{
         SongList,
         scroll,
-        loading
+        loading,
     },
     data() {
         return {

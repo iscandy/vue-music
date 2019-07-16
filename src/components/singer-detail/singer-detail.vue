@@ -43,6 +43,8 @@ export default {
                if(res.code==ERR_OK){
                    //对得到的数据进行处理
                   this.songs=this._normallizeSingerDetail(res.data.list)
+               }else{
+                   console.log( this.songs);
                }
             }).catch(err=>{
                 console.log(err);

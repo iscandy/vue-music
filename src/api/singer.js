@@ -52,7 +52,7 @@ export function getMusicVkey(songmid) {
           format: 'json'
    })
    return new Promise(function(resolve,reject){
-        axios.get(url,{ params: data}).then(res=>{
+        axios.get(url,{params: data}).then(res=>{
             resolve(res.data)
         }).catch(err=>{
             reject(err)

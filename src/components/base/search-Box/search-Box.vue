@@ -9,6 +9,9 @@
 </template>
 
 <script>
+//引入节流函数
+import {debounce} from 'common/js/util.js'
+
 export default {
  props:{
    placeholder:{type:String,default:'搜索歌曲、歌手'}
@@ -28,9 +31,9 @@ export default {
  },
  //在create中watch query的变化
  created() {
-      this.$watch('query', (newQuery) => {
+      this.$watch('query',debounce((newQuery) => {
           this.$emit('query', newQuery)
-      })
+      },300))
   }
 }
 </script>

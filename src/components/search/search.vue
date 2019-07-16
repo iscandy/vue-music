@@ -17,6 +17,8 @@
         <div class="search-result"  v-show="query" ref="search_result">
             <suggest :query="query" :showSinger="showSinger"></suggest>
         </div> 
+        <!-- 展示子路由 -->
+        <router-view></router-view>
     </div>
 </template>
 
@@ -27,6 +29,7 @@ import {ERR_OK} from 'api/config'
 import suggest from '../../components/suggest/suggest'
 //做底部处理
 import {playlistMixin} from 'common/js/mixin.js'
+
 export default {
    mixins:['playlistMixin'],
     components:{
@@ -56,7 +59,8 @@ export default {
             this.$refs.search.set_query(item.k);
         },
         onQueryChange(query){
-            //根据得到的关键字
+            //根据得到的关键字,做节流处理
+
             this.query=query
         },
        // 底部自适应处理

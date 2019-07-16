@@ -1,24 +1,24 @@
 <template>
      <scroll   class="suggest" :data="list" @scrollToEnd='searchMore' :pullup="pullup">
-            <ul   class="suggest-list">
-                <li   class="suggest-item" v-for="(item,index) in list" :key="index">
-                <div   class="icon">
-                    <i :class="getIconCls(item)"></i>
-                </div>
-                <div   class="name">
-                    <p  class="text" v-html="getDisplayName(item)"></p>
-                </div>
-                </li>
-
-                <li class="suggest-list-loading" v-show="hasMore">
-                    <loading :title=title></loading>
-                </li>
-            </ul>
-            <!-- 展示暂无数据-->
-            <div v-show="!hasMore && !list.length" class="no-result-wrapper">
-                <noResult title="暂无数据"></noResult>
+        <ul   class="suggest-list">
+            <li   class="suggest-item" v-for="(item,index) in list" :key="index" @click="selectItem(item)">
+            <div   class="icon">
+                <i :class="getIconCls(item)"></i>
             </div>
-        </scroll>   
+            <div   class="name">
+                <p  class="text" v-html="getDisplayName(item)"></p>
+            </div>
+            </li>
+
+            <li class="suggest-list-loading" v-show="hasMore">
+                <loading :title=title></loading>
+            </li>
+        </ul>
+        <!-- 展示暂无数据-->
+        <div v-show="!hasMore && !list.length" class="no-result-wrapper">
+            <noResult title="暂无数据"></noResult>
+        </div>
+    </scroll>   
 </template>
 
 <script>
@@ -34,7 +34,11 @@ import scroll from 'components/base/scroll/scroll'
 import loading from 'components/base/loading/loading'
 //展示暂无数据
 import noResult from 'components/base/no-result/no-result'
+//引入歌手类
+import Singer  from '../../common/js/singer'
 
+//引入mapmutation
+import {mapMutations,mapActions} from 'vuex'
 
 export default {
     components:{
@@ -58,7 +62,7 @@ export default {
             list:[],//当前的列表的数据
             title:'',
             pullup:true,
-            hasMore:false,//是否还可展示更多的数据
+            hasMore:true,//是否还可展示更多的数据
         }
     },
     methods:{
@@ -69,7 +73,7 @@ export default {
             //关键字,当前页(在data中维护当前页),一页多少条,是否展示歌手(根据props传递过来)
             let result=await search(newQuery,this.pageIndex,PAGESIZE,this.showSinger)
             if(result.code==ERR_OK){
-                if(result.data.zhida && result.data.zhida.albumid){
+                if(result.data.zhida && result.data.zhida.singerid){
                     this.list.push({...result.data.zhida,...{type:SINGER_TYPE}});
                 }
                // console.log(result.data.song.list)
@@ -131,11 +135,34 @@ export default {
             }else{
                 this.hasMore=true
             }
+        },
+        ...mapMutations({
+            set_singer:'SET_SINGER'
+        }),
+        ...mapActions(['inner_song']),
+        selectItem(item){
+            if(item.type===SINGER_TYPE){
+                //跳转到当前的路由
+                let singer=new Singer({
+                    name:item.singername,
+                    id:item.singermid
+                })
+                //改变vuex的 singer
+                this.set_singer(singer);
+                this.$router.push({
+                    path:`/search/${singer.id}`
+                });
+    
+            }else{
+                //需要改变vuex的playlist sequenceList currentIndex 
+                //因为需要改变多个vuex的state。我们需要将这些mutation封装在一个actions里面
+                this.inner_song({song:item});
+            }
         }
     },
     watch: {
       query(newQuery) {
-        //监听到query的变化，发送请求。需要做节流处理。。。
+        //监听到query的变化，发送请求
         this.search(newQuery);
       }
     }

@@ -53,7 +53,13 @@ export default new Router({
     {
       path:'/search',
       component:search,
-      name:'搜索'
+      name:'搜索',
+      children:[
+        {
+          path:'/search/:id',
+          component:singerDetail
+        }
+      ]
     },
     {
       redirect:'/recommend',
