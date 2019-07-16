@@ -135,7 +135,7 @@ export default {
     },
     watch: {
       query(newQuery) {
-        //监听到query的变化，发送请求
+        //监听到query的变化，发送请求。需要做节流处理。。。
         this.search(newQuery);
       }
     }
