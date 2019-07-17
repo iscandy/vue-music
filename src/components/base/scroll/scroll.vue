@@ -30,6 +30,11 @@ export default {
         pullup:{
             type:Boolean,
             default:false
+        },
+        //一旦开始滚动列表的时候，是否需要向外部派发beforeScrollStart事件
+        isBeforeScroll:{
+            type:Boolean,
+            default:false
         }
     },
     data(){
@@ -68,6 +73,12 @@ export default {
                     if(this.scroll.y<=(this.scroll.maxScrollY+50)){//当滑动到底部50px处
                         this.$emit('scrollToEnd');//向外暴露一个scrollEnd 事件
                     }    
+                })
+            }
+            //是否向外派发一个beforeScrollStart事件
+            if(this.isBeforeScroll){
+                this.scroll.on('beforeScrollStart',()=>{
+                    this.$emit('beforeScrollStart')
                 })
             }
         },

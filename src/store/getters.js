@@ -23,3 +23,6 @@ export const disc=(state)=>state.disc
 
 //排行榜的歌单
 export const rank=(state)=>state.rank;
+
+//暴露出searchHistory
+export const searchHistory=(state)=>state.searchHistory

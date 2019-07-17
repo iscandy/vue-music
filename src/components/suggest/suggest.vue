@@ -1,5 +1,5 @@
 <template>
-     <scroll   class="suggest" :data="list" @scrollToEnd='searchMore' :pullup="pullup">
+     <scroll   class="suggest" :data="list" @scrollToEnd='searchMore' :pullup="pullup"  :isBeforeScroll="isBeforeScroll" :beforeScrollStart="beforeScrollStart" >
         <ul   class="suggest-list">
             <li   class="suggest-item" v-for="(item,index) in list" :key="index" @click="selectItem(item)">
             <div   class="icon">
@@ -63,6 +63,7 @@ export default {
             title:'',
             pullup:true,
             hasMore:true,//是否还可展示更多的数据
+            isBeforeScroll:true,//是否需要滚动的时候派发滚动开始事件
         }
     },
     methods:{
@@ -89,10 +90,11 @@ export default {
             let ret=[];
             for(let item of list){
                 if(item.songid && item.songmid){
-                    let result=await getMusicVkey(item.songmid);
-                    if(result.code==ERR_OK){
-                        ret.push(createSong(item,result.data.items[0].vkey))
-                    }
+                    // let result=await getMusicVkey(item.songmid);
+                    // if(result.code==ERR_OK){
+                    //     ret.push(createSong(item,result.data.items[0].vkey))
+                    // }
+                    ret.push(createSong(item))
                 }
             }
             return ret
@@ -139,7 +141,7 @@ export default {
         ...mapMutations({
             set_singer:'SET_SINGER'
         }),
-        ...mapActions(['inner_song']),
+        ...mapActions(['insert_song']),
         selectItem(item){
             if(item.type===SINGER_TYPE){
                 //跳转到当前的路由
@@ -152,12 +154,18 @@ export default {
                 this.$router.push({
                     path:`/search/${singer.id}`
                 });
-    
             }else{
                 //需要改变vuex的playlist sequenceList currentIndex 
                 //因为需要改变多个vuex的state。我们需要将这些mutation封装在一个actions里面
-                this.inner_song({song:item});
+                this.insert_song(item);
             }
+
+            //一旦点击任何一个列表项的时候，派发事件,将当前的搜索的关键字作为参数派发出去
+            this.$emit('saveSearch',this.query)
+        },
+        beforeScrollStart(){
+            //一旦滚动开始的时候，让search的input失去焦点
+            this.$emit('beforeScrollStart');
         }
     },
     watch: {

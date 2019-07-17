@@ -2,7 +2,7 @@
     <div class="search-box-wrapper">
         <div  class="search-box">
             <i  class="icon-search"></i>
-            <input  :placeholder="placeholder" class="box" v-model="query">
+            <input  :placeholder="placeholder" class="box" v-model="query" ref="query">
             <i  class="icon-dismiss" v-show="query" @click="clear"></i>
         </div>
     </div>
@@ -27,6 +27,9 @@ export default {
    },
    set_query(query){
      this.query=query
+   },
+   inputBlur(){
+    this.$refs.query.blur();
    }
  },
  //在create中watch query的变化

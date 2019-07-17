@@ -1,5 +1,4 @@
 import * as types from './mutation-types'
-import { type } from 'os';
 const mutations={
     //歌手
     [types.SET_SINGER](state,singer){
@@ -36,6 +35,10 @@ const mutations={
     //改变排行榜的歌单
     [types.SET_RANK](state,rank){
         state. rank=rank
+    },
+    //改变当前的搜索历史
+    [types.SET_SEARCHHISTORY](state,list){
+        state.searchHistory=list
     }
 }
 export default mutations

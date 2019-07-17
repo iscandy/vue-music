@@ -21,3 +21,6 @@ export const SET_DISC='SET_DISC'
 
 //排行版的歌单
 export const SET_RANK='SET_RANK'
+
+//搜索历史
+export const SET_SEARCHHISTORY='SET_SEARCHHISTORY';
