@@ -1,5 +1,6 @@
 <template>
-    <div class="confirm" v-show="isConfirm">
+  <transition  name="confirm-fade">
+    <div class="confirm" v-show="isShow">
         <div class="confirm-wrapper">
             <div class="confirm-content">
                 <p class="text">
@@ -16,15 +17,12 @@
             </div>
         </div>
     </div>
+</transition>
 </template>
 
 <script>
 export default {
  props:{
-     isConfirm:{
-         type:Boolean,
-         default:false
-     },
      text:{
          type:String,
          default:''
@@ -37,13 +35,27 @@ export default {
          type:String,
          default:"确定"
      }
+     
  },
+ data() {
+    return {
+      isShow:false
+    }
+  },
  methods:{
-     cancel(){
-         this.$emit('cancel')
-     },
-     confirm(){
-         this.$emit('confirm');
+    hide(){
+      this.isShow=false
+    },
+    show(){
+      this.isShow=true
+    },
+    cancel(){
+      this.hide()
+      this.$emit('cancel')
+    },
+    confirm(){
+      this.hide()
+      this.$emit('confirm');
      }
  }
 }

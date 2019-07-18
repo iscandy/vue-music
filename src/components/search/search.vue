@@ -4,7 +4,8 @@
         <search-box ref="search" @query="onQueryChange"></search-box>
        <!-- 搜索框没有搜索关键之的展示-->
         <div class="shortcut-wrapper" v-show="!query" ref="shortcut_wrapper" >
-            <div  class="shortcut">
+            <scroll  class="shortcut" ref="shortcut" :data="shortcut">
+              <div>
                 <!--热门搜索部分 -->
                  <div  class="hot-key">
                     <h1  class="title">热门搜索</h1>
@@ -22,15 +23,14 @@
                   <!--这里是搜索列表组件 -->
                   <search-list :searches='searchHistory' @delectOne="delectOne" @addquery="addquery"></search-list>
                 </div>
-
-
-            </div>
+              </div>
+            </scroll>
         </div>
 
 
        <!-- 搜索框有关键字的展示 -->
         <div class="search-result"  v-show="query" ref="search_result">
-            <suggest :query="query" :showSinger="showSinger" @beforeScrollStart="beforeScrollStart" @saveSearch="saveSearch" ></suggest>
+            <suggest :query="query" ref="suggest" :showSinger="showSinger" @beforeScrollStart="beforeScrollStart" @saveSearch="saveSearch" ></suggest>
         </div>
 
 
@@ -38,7 +38,7 @@
         <router-view></router-view>
 
         <!-- 引入确定的弹窗 -->
-        <confirm :isConfirm="isConfirm" text="您确定删除全部吗？"  @cancel="cancel" @confirm="confirm" ></confirm>
+        <confirm text="您确定删除全部吗？"  ref="confirm"  @confirm="confirm" ></confirm>
 
 
     </div>
@@ -59,24 +59,30 @@ import {mapGetters,mapActions}  from 'vuex'
 //引入确定弹窗组件
 import confirm from 'components/base/confirm/confirm'
 
+//引入滚动组件
+import scroll  from 'components/base/scroll/scroll'
+
 export default {
-   mixins:['playlistMixin'],
+   mixins:[playlistMixin],
     components:{
         searchBox,
         suggest,
         searchList,
-        confirm
+        confirm,
+        scroll
     },
     data() {
         return {
             hotKey:[],
             query:"",
-            showSinger:true,
-            isConfirm:false
+            showSinger:true
         }
     },
     computed:{
       ...mapGetters(['searchHistory']),
+      shortcut(){
+        return this.hotKey.concat(this.searchHistory)
+      }
     },
     created(){
         this._getHotKey()
@@ -90,18 +96,13 @@ export default {
       ),
       //删除一个
       delectOne(item){
-       
         this.delete_SearchOne(item);
       },
       //删除全部
       delectAll(){
-        this.isConfirm=true
-      },
-      cancel(){
-        this.isConfirm=false
+        this.$refs.confirm.show()
       },
       confirm(){
-        this.isConfirm=false
         this.delete_SearchAll()
       },
       //根据搜索项去重新搜索
@@ -127,16 +128,6 @@ export default {
         beforeScrollStart(){
           this.$refs.search.inputBlur()
         },
-       // 底部自适应处理
-        handlePlayList(playlist){
-          if(playlist.length){
-            let bottom=60
-          }else{
-            let bottom=0
-          }
-          this.$refs.shortcut_wrapper.style['bottom']=`${bottom}px`
-          this.$refs.search_result.style['bottom']=`${bottom}px`
-        },
         ...mapActions(['set_searchHistoty']),
         //保存搜索关键字
         saveSearch(query){
@@ -144,7 +135,24 @@ export default {
           //将searchHistory存入本地
           //因为进行了多个操作，这里我们需要在actions里面写
           this.set_searchHistoty(query)
+        },
+        //做底部自适应
+        handlePlayList(playlist){
+          let bottom= playlist.length ?  60 :0
+          this.$refs.shortcut_wrapper.style.bottom = `${bottom}px`
+          this.$refs.search_result.style.bottom = `${bottom}px`
+          this.$refs.shortcut.refresh()
+          this.$refs.suggest.refresh()
         }
+    },
+    watch:{
+      query(newsong){
+          if(!newsong){//当从搜索列表切换到热门搜索页面，shortcut从display:none变成display:block从无到有的过程
+            setTimeout(() => {
+              this.$refs.shortcut.refresh()
+            }, 20)
+          }
+      }
     }
 }
 </script>

@@ -1,5 +1,5 @@
 <template>
-     <scroll   class="suggest" :data="list" @scrollToEnd='searchMore' :pullup="pullup"  :isBeforeScroll="isBeforeScroll" :beforeScrollStart="beforeScrollStart" >
+     <scroll  ref="scroll"  class="suggest" :data="list" @scrollToEnd='searchMore' :pullup="pullup"  :isBeforeScroll="isBeforeScroll" :beforeScrollStart="beforeScrollStart" >
         <ul   class="suggest-list">
             <li   class="suggest-item" v-for="(item,index) in list" :key="index" @click="selectItem(item)">
             <div   class="icon">
@@ -166,6 +166,9 @@ export default {
         beforeScrollStart(){
             //一旦滚动开始的时候，让search的input失去焦点
             this.$emit('beforeScrollStart');
+        },
+        refresh(){
+            this.$refs.scroll.refresh()
         }
     },
     watch: {

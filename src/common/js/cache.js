@@ -31,7 +31,7 @@ export function saveSearch(val) {
     
     //得到要存的数据（直接对searchArr做插入操作）
     insertArray(searchArr,val,(item)=>{
-        return item==val
+        return item.trim()==val.trim()
     },MAXLENGTH)
     //存进去（得到新的searchArr，存进本地）
     storage.set(SEARCH_KEY,searchArr) 
@@ -51,7 +51,7 @@ export function deleteSearchOne(val){
     //获取到当前的
     let searchArr= storage.get(SEARCH_KEY,[])//获取到内存中的_search_。找不到的话就给默认值为[]
     let index=searchArr.findIndex((item)=>{
-        return val==index
+        return item==val
     })
     searchArr.splice(index,1);
     //将当前的存进去
