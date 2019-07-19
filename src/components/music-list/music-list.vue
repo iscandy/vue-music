@@ -27,7 +27,7 @@
             </div>
             
             <!-- loading部分 -->
-            <div class="loading-container" v-show="!songs">
+            <div class="loading-container" v-show="!songs.length">
                 <loading></loading>
             </div>
         </scroll>

@@ -115,12 +115,15 @@
             </progressCircle>
           </div>
 
-          <div class="control">
+          <div class="control" @click.stop="showPlayList">
             <i class="icon-playlist"></i>
           </div>
 
       </div>
      </transition>
+
+     <!-- 展开当前的播放列表 -->
+     <play-list ref="play_list"></play-list>
 
     <!-- 加audio播放 -->
     <audio 
@@ -136,26 +139,31 @@
 </template>
 
 <script>
-import {mapGetters,mapMutations} from 'vuex'
+
+
 import animations from 'create-keyframe-animation'
 import {prefixStyle} from '@/common/js/dom'
 //引入进度条组件
 import progressBar  from 'components/base/progress-bar/progress-bar'
 //引入圆环进度条
 import progressCircle from 'components/base/progress-circle/progress-circle.vue'
-//引入工具函数打款当前的书序
-import  {shuffle} from 'common/js/util'
-//引入模式
-import {playMode} from 'common/js/config'
+
 //引入歌词解析库
 import Lyric from 'lyric-parser'
 //引入scroll组件
 import Scroll from 'components/base/scroll/scroll'
+//引入playlist组件
+import playList from 'components/play-list/play-list'
 
 const transform=prefixStyle('transform');
 const transitionDuration=prefixStyle('transition-duration');
 
+import {mapGetters,mapMutations} from 'vuex'
+import {playMode} from 'common/js/config'
+//引入mixins
+import {playerMixin} from 'common/js/mixin.js'
 export default {
+  mixins:[playerMixin],
   data() {
     return {
       songReady: false,//标识歌曲是否准备好了
@@ -170,7 +178,8 @@ export default {
   components:{
     progressBar,
     progressCircle,
-    Scroll
+    Scroll,
+    playList
   },
   created() {
     this.touch={},
@@ -179,12 +188,7 @@ export default {
   computed: {
     ...mapGetters([
       'fullScreen',
-      'playlist',
-      'currentSong',
-      'playing',
       'currentIndex',
-      'mode',
-      'sequenceList'
     ]),
     //播放或者暂停按钮
     playIcon(){
@@ -198,20 +202,11 @@ export default {
     },
     percent(){
       return this.currentTime /  this.currentSong.duration
-    },
-    //模式播放按钮
-    modeIcon(){
-      //icon-sequence
-      return this.mode===playMode.sequence ? 'icon-sequence' : this.mode===playMode.loop ? 'icon-loop' : 'icon-random'
     }
   },
   methods: {
     ...mapMutations({
         setFullScreen:'SET_FULLSCREEN',
-        setPlaying:'SET_PLAYING',
-        setCurrentIndex:'SET_CURRENTINDEX',
-        setMode:'SET_MODE',
-        setPlayList:'SET_PLAYLIST'
     }),
    open(){
      this.setFullScreen(true)
@@ -275,26 +270,6 @@ export default {
           this.setPlaying(true);
         }
         this.songReady=false
-    },
-    //改变歌曲的模式
-   changeMode(){
-          const mode = (this.mode + 1) % 3
-          this.setMode(mode)
-          let list = null
-          if(mode === playMode.random){
-            list = shuffle(this.sequenceList)
-          }else{
-            list = this.sequenceList
-          }
-          this.resetCurrentIndex(list) 
-          this.setPlayList(list)
-    },
-    //重置当前的索引
-    resetCurrentIndex(list){
-        let index = list.findIndex((item) => { //es6语法 findIndex
-            return item.id === this.currentSong.id
-        })
-        this.setCurrentIndex(index)
     },
     //切换歌词和唱片
     middleTouchStart(e){
@@ -502,14 +477,14 @@ export default {
         this.$refs.lyricList.scrollToElement(lineeEl)
       }else{
         //滚动回到顶部
-        this.$refs.lyricList.scrollTo(0,0,1000)
+        this.$refs.lyricList && this.$refs.lyricList.scrollTo(0,0,1000)
       }
       this.playingLyric=txt
     },
     getLyric(){
         this.currentSong.getLyric().then(lyricStr=>{
             //对当前的歌词进行解析
-            this.currentLyric= new Lyric(lyricStr,this.handleLyric)
+             this.currentLyric= new Lyric(lyricStr,this.handleLyric)
             //当歌曲播放的时候，调用Lyric实例 的 play()方法
             if(this.playing){
                 this.currentLyric.play()
@@ -519,12 +494,23 @@ export default {
             this.playingLyric = ''
             this.currentLineNum = 0
         })
+    },
+    //展示歌曲的列表
+    showPlayList(){
+        this.$refs.play_list.show();
     }
   
   },
   watch: {
     //监听currentSong的变化
     currentSong(newSong, oldSong){ //确保DOM已存在
+
+        //删除到最后一个的时候报错处理
+        if(!newSong.id){
+            return
+        }
+
+
         if(newSong.id === oldSong.id) {
           return
         }
@@ -534,11 +520,16 @@ export default {
         }
         //手机微信处理
         setTimeout(()=>{
+          //删除到最后一个的时候报错处理
           this.$refs.audio.play();
           this.getLyric()
-        },1000)
+        },200)
     },
     playing(isplay){
+      //删除到最后一个的时候报错处理
+        if(!this.currentSong.id){
+            return
+        }
       this.$nextTick(()=>{
         isplay ? this.$refs.audio.play() : this.$refs.audio.pause()
       })

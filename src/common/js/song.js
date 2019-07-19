@@ -18,7 +18,7 @@ class Song{
     //获取到歌词的函数
     getLyric(){
         if(this.lyric){
-            Promise.resolve(this.lyric);
+            return  Promise.resolve(this.lyric);
         }else{
             return new Promise((resolve,reject)=>{
                 getLyric(this.mid).then(res=>{

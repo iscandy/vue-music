@@ -90,11 +90,10 @@ export default {
             let ret=[];
             for(let item of list){
                 if(item.songid && item.songmid){
-                    // let result=await getMusicVkey(item.songmid);
-                    // if(result.code==ERR_OK){
-                    //     ret.push(createSong(item,result.data.items[0].vkey))
-                    // }
-                    ret.push(createSong(item))
+                    let result=await getMusicVkey(item.songmid);
+                    if(result.code==ERR_OK){
+                        ret.push(createSong(item,result.data.items[0].vkey))
+                    }
                 }
             }
             return ret
